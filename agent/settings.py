@@ -36,7 +36,6 @@ ALLOWED_HOSTS = ['.onrender.com']
 INSTALLED_APPS = [
     'ca',
     'crispy_forms',
-    'captcha',
     'crispy_bootstrap5',
     'django.contrib.admin',
     'django.contrib.auth',
