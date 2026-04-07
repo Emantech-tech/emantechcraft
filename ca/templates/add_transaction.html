@@ -1,0 +1,402 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="form-wrapper" style="max-width: 900px; margin: auto; padding: 0 16px;">
+    <div class="form-header" style="margin-bottom: 24px;">
+        <h2 style="font-family: 'Playfair Display', serif; font-size: clamp(1.3rem, 5vw, 1.8rem);">
+            <i class="fas fa-plus-circle"></i>
+            <span class="t" data-en="Add Transaction for" data-ur="کے لیے ٹرانزیکشن شامل کریں">Add Transaction for</span> {{ party.name }}
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem;">
+            <span class="t" data-en="Record Jama (Credit - You have to pay) or Naam (Debit - Party has to pay you)"
+                  data-ur="جمع (آپ کو دینا ہے) یا نام (پارٹی آپ کو دے گی) ریکارڈ کریں">
+                Record Jama (Credit - You have to pay) or Naam (Debit - Party has to pay you)
+            </span>
+        </p>
+    </div>
+
+    <form method="POST" style="background: var(--white); padding: clamp(20px, 5vw, 30px); border-radius: 24px; border: 1px solid var(--mist);">
+        {% csrf_token %}
+
+        <!-- Date and Room Row - Responsive Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem;">
+                    <i class="fas fa-calendar"></i> <span class="t" data-en="Date" data-ur="تاریخ">Date</span> *
+                </label>
+                <input type="date" name="date" value="{% now 'Y-m-d' %}" required
+                       style="width: 100%; padding: 12px; border: 1.5px solid var(--mist); border-radius: 12px; font-size: 0.9rem;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem;">
+                    <i class="fas fa-door-open"></i> <span class="t" data-en="Room Number" data-ur="روم نمبر">Room Number</span>
+                </label>
+                <input type="text" name="room_no"
+                       style="width: 100%; padding: 12px; border: 1.5px solid var(--mist); border-radius: 12px; font-size: 0.9rem;"
+                       placeholder="e.g., 101, A-12, Ground Floor">
+            </div>
+        </div>
+
+        <!-- Product -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem;">
+                <i class="fas fa-box"></i> <span class="t" data-en="Product / Items" data-ur="اشیاء / پروڈکٹ">Product / Items</span>
+            </label>
+            <input type="text" name="product_name"
+                   style="width: 100%; padding: 12px; border: 1.5px solid var(--mist); border-radius: 12px; font-size: 0.9rem;"
+                   placeholder="e.g., SULPHUR 80WP, TRIPLET(NPK 8:8:6)">
+        </div>
+
+        <!-- Quantity and Rate Row - Responsive Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px;">
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem;">
+                    <i class="fas fa-weight-hanging"></i> <span class="t" data-en="Quantity" data-ur="تعداد">Quantity</span>
+                </label>
+                <input type="number" name="qty" step="0.001" value="0" id="qtyInput"
+                       style="width: 100%; padding: 12px; border: 1.5px solid var(--mist); border-radius: 12px; font-size: 0.9rem;">
+                <small style="color: var(--text-muted); font-size: 0.7rem;">e.g., 150, 20.5, 1000</small>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem;">
+                    <i class="fas fa-tag"></i> <span class="t" data-en="Rate" data-ur="ریٹ">Rate</span>
+                </label>
+                <input type="number" name="rate" step="0.01" value="0" id="rateInput"
+                       style="width: 100%; padding: 12px; border: 1.5px solid var(--mist); border-radius: 12px; font-size: 0.9rem;">
+                <small style="color: var(--text-muted); font-size: 0.7rem;">Price per unit</small>
+            </div>
+        </div>
+
+        <!-- Commission, Bharti, Ant Row - Responsive Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px;">
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem;">
+                    <i class="fas fa-percent"></i> <span class="t" data-en="Commission" data-ur="کمیشن">Commission</span>
+                </label>
+                <input type="number" name="commission" step="0.01" value="0" id="commissionInput"
+                       style="width: 100%; padding: 12px; border: 1.5px solid var(--mist); border-radius: 12px; font-size: 0.9rem;"
+                       placeholder="0.00">
+                <small style="color: var(--text-muted); font-size: 0.7rem;">Commission amount</small>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem;">
+                    <i class="fas fa-weight"></i> <span class="t" data-en="Bharti (KG)" data-ur="بھرتی (کلوگرام)">Bharti (KG)</span>
+                </label>
+                <input type="number" name="bharti" step="0.001" value="0" id="bhartiInput"
+                       style="width: 100%; padding: 12px; border: 1.5px solid var(--mist); border-radius: 12px; font-size: 0.9rem;"
+                       placeholder="0.000">
+                <small style="color: var(--text-muted); font-size: 0.7rem;">Weight in KG</small>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem;">
+                    <i class="fas fa-calculator"></i> <span class="t" data-en="Ant (Net Amount)" data-ur="انت (خالص رقم)">Ant (Net Amount)</span>
+                </label>
+                <input type="number" name="ant" step="0.01" value="0" id="antInput"
+                       style="width: 100%; padding: 12px; border: 1.5px solid var(--mist); border-radius: 12px; background: #fef9e8; font-size: 0.9rem;"
+                       placeholder="0.00">
+                <small style="color: var(--text-muted); font-size: 0.7rem;">
+                    <span class="t" data-en="Auto-calculated from Bharti × Rate - Commission"
+                          data-ur="بھرتی × ریٹ - کمیشن سے خود بخود حساب ہوگا">
+                        Auto-calculated from Bharti × Rate - Commission
+                    </span>
+                </small>
+            </div>
+        </div>
+
+        <!-- Calculation Preview Box - Mobile Friendly -->
+        <div style="background: var(--cream); padding: 12px 15px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px solid var(--gold);">
+            <span style="font-weight: 600; font-size: 0.85rem;">
+                <i class="fas fa-chart-line"></i>
+                <span class="t" data-en="Calculation Preview" data-ur="حساب کی جھلک">Calculation Preview</span>:
+            </span>
+            <span id="calculationPreview" style="font-weight: bold; color: var(--gold); margin-left: 8px; font-size: 0.85rem; display: inline-block; word-break: break-word;">
+                —
+            </span>
+        </div>
+
+        <!-- Rokad (Cash) -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem;">
+                <i class="fas fa-money-bill-wave"></i>
+                <span class="t" data-en="Rokad (Cash)" data-ur="روکڑ (نقد)">Rokad (Cash)</span>
+            </label>
+            <input type="number" name="rokad" step="0.01" value="0"
+                   style="width: 100%; padding: 12px; border: 1.5px solid var(--mist); border-radius: 12px; font-size: 0.9rem;"
+                   placeholder="0.00">
+            <small style="color: var(--text-muted); font-size: 0.7rem; display: block; margin-top: 4px;">
+                <span class="t" data-en="Optional - Cash amount received or paid"
+                      data-ur="اختیاری - نقد رقم جو دی یا لی گئی">Optional - Cash amount received or paid</span>
+            </small>
+        </div>
+
+        <!-- Transaction Type -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem;">
+                <i class="fas fa-exchange-alt"></i> <span class="t" data-en="Transaction Type" data-ur="ٹرانزیکشن کی قسم">Transaction Type</span> *
+            </label>
+            <select name="transaction_type" id="transaction_type" required
+                    style="width: 100%; padding: 12px; border: 1.5px solid var(--mist); border-radius: 12px; font-size: 0.9rem;">
+                <option value="">-- <span class="t" data-en="Select type" data-ur="قسم منتخب کریں">Select type</span> --</option>
+                <option value="credit">🔵 <span class="t" data-en="Jama (Credit) - You have to pay to party" data-ur="جمع - آپ کو پارٹی کو دینا ہے">Jama (Credit) - You have to pay to party</span></option>
+                <option value="debit">🔴 <span class="t" data-en="Naam (Debit) - Party has to pay you" data-ur="نام - پارٹی آپ کو دے گی">Naam (Debit) - Party has to pay you</span></option>
+            </select>
+            <small style="color: var(--text-muted); font-size: 0.7rem; display: block; margin-top: 4px;">
+                <span class="t" data-en="🔵 Jama (Blue) = You will pay the party | 🔴 Naam (Red) = Party will pay you"
+                      data-ur="🔵 جمع (نیلا) = آپ پارٹی کو دیں گے | 🔴 نام (سرخ) = پارٹی آپ کو دے گی">
+                    🔵 Jama (Blue) = You will pay the party | 🔴 Naam (Red) = Party will pay you
+                </span>
+            </small>
+        </div>
+
+        <!-- Amount -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem;">
+                <i class="fas fa-rupee-sign"></i> <span class="t" data-en="Amount" data-ur="رقم">Amount</span> *
+            </label>
+            <input type="number" name="amount" step="0.01" required id="amount-input"
+                   style="width: 100%; padding: 12px; border: 1.5px solid var(--mist); border-radius: 12px; background: #fef9e8; font-size: 0.9rem;"
+                   placeholder="0.00">
+            <small style="color: var(--text-muted); font-size: 0.7rem; display: block; margin-top: 4px;">
+                <span class="t" data-en="Amount will be auto-filled from Ant (Net Amount)"
+                      data-ur="رقم خود بخود انت (خالص رقم) سے آئے گی">
+                    Amount will be auto-filled from Ant (Net Amount)
+                </span>
+            </small>
+        </div>
+
+        <!-- Reference -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem;">
+                <i class="fas fa-link"></i> <span class="t" data-en="Reference" data-ur="حوالہ">Reference</span>
+            </label>
+            <input type="text" name="reference"
+                   style="width: 100%; padding: 12px; border: 1.5px solid var(--mist); border-radius: 12px; font-size: 0.9rem;"
+                   placeholder="e.g., PR No, Invoice No, Bill No">
+        </div>
+
+        <!-- Note -->
+        <div style="margin-bottom: 25px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem;">
+                <i class="fas fa-pencil-alt"></i> <span class="t" data-en="Note" data-ur="نوٹ">Note</span>
+            </label>
+            <textarea name="note" rows="3"
+                      style="width: 100%; padding: 12px; border: 1.5px solid var(--mist); border-radius: 12px; font-size: 0.9rem; resize: vertical;"
+                      placeholder="e.g., Payment for January commission, Opening balance, etc."></textarea>
+        </div>
+
+        <!-- Buttons - Mobile Friendly Row/Column -->
+        <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+            <button type="submit" style="flex: 1; min-width: 140px; background: var(--gold); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+                <i class="fas fa-save"></i> <span class="t" data-en="Save Transaction" data-ur="ٹرانزیکشن محفوظ کریں">Save Transaction</span>
+            </button>
+            <a href="{% url 'party_detail' party.id %}" style="flex: 1; min-width: 140px; text-align: center; background: var(--mist); color: var(--ink); border: none; padding: 14px; border-radius: 12px; font-weight: 600; text-decoration: none; font-size: 0.9rem;">
+                <i class="fas fa-times"></i> <span class="t" data-en="Cancel" data-ur="منسوخ کریں">Cancel</span>
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+    /* Urdu Mode Styles */
+    body.urdu-mode .form-header { text-align: right; }
+    body.urdu-mode .form-header h2 i { margin-left: 8px; margin-right: 0; }
+    body.urdu-mode label { text-align: right; display: block; }
+    body.urdu-mode label i { margin-left: 8px; margin-right: 0; }
+    body.urdu-mode small { display: block; text-align: right; }
+    body.urdu-mode select,
+    body.urdu-mode input,
+    body.urdu-mode textarea { text-align: right; direction: rtl; }
+
+    /* Mobile Responsive Styles */
+    @media (max-width: 640px) {
+        .form-wrapper {
+            padding: 0 12px !important;
+        }
+        form {
+            padding: 20px !important;
+            border-radius: 20px !important;
+        }
+        .form-header {
+            margin-bottom: 18px !important;
+        }
+        label {
+            font-size: 0.8rem !important;
+        }
+        input, select, textarea {
+            padding: 10px !important;
+            font-size: 0.85rem !important;
+        }
+        .form-header p {
+            font-size: 0.75rem !important;
+        }
+        .calculation-preview {
+            padding: 10px !important;
+        }
+        button, a.action-btn {
+            padding: 12px !important;
+            font-size: 0.85rem !important;
+        }
+        small {
+            font-size: 0.65rem !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .form-wrapper {
+            padding: 0 10px !important;
+        }
+        form {
+            padding: 16px !important;
+            border-radius: 16px !important;
+        }
+        .form-header h2 {
+            font-size: 1.2rem !important;
+        }
+        .form-header h2 i {
+            font-size: 0.9rem !important;
+        }
+        label {
+            font-size: 0.75rem !important;
+        }
+        input, select, textarea {
+            padding: 8px 10px !important;
+            font-size: 0.8rem !important;
+        }
+        button, a.action-btn {
+            padding: 10px !important;
+            font-size: 0.8rem !important;
+            min-width: 120px !important;
+        }
+    }
+
+    @media (max-width: 360px) {
+        .form-header h2 {
+            font-size: 1rem !important;
+        }
+        button, a.action-btn {
+            min-width: 100px !important;
+        }
+        .buttons-container {
+            flex-direction: column !important;
+        }
+        button, a.action-btn {
+            width: 100% !important;
+        }
+    }
+</style>
+
+{% block extra_js %}
+<script>
+    function applyLang(lang) {
+        document.querySelectorAll('[data-en][data-ur]').forEach(el => {
+            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') {
+                // For form elements, update placeholder
+                if (el.placeholder !== undefined) {
+                    el.placeholder = lang === 'ur' ? el.getAttribute('data-ur') : el.getAttribute('data-en');
+                }
+            } else {
+                el.textContent = lang === 'ur' ? el.dataset.ur : el.dataset.en;
+            }
+        });
+    }
+    const savedLang = localStorage.getItem('munshi_lang') || 'en';
+    applyLang(savedLang);
+
+    const origSetLang = window.setLang;
+    window.setLang = function(lang) {
+        if (origSetLang) origSetLang(lang);
+        applyLang(lang);
+    };
+
+    // Auto calculation: Ant = (Bharti × Rate) - Commission
+    const bhartiInput = document.getElementById('bhartiInput');
+    const rateInput = document.getElementById('rateInput');
+    const commissionInput = document.getElementById('commissionInput');
+    const antInput = document.getElementById('antInput');
+    const amountInput = document.getElementById('amount-input');
+    const qtyInput = document.getElementById('qtyInput');
+    const previewSpan = document.getElementById('calculationPreview');
+
+    function calculateAnt() {
+        let bharti = parseFloat(bhartiInput?.value) || 0;
+        let rate = parseFloat(rateInput?.value) || 0;
+        let commission = parseFloat(commissionInput?.value) || 0;
+
+        let calculated = (bharti * rate) - commission;
+        if (calculated < 0) calculated = 0;
+
+        if (antInput) antInput.value = calculated.toFixed(2);
+        if (amountInput) amountInput.value = calculated.toFixed(2);
+
+        // Update preview
+        if (previewSpan) {
+            if (bharti > 0 && rate > 0) {
+                previewSpan.innerHTML = `${bharti} KG × ${rate} = ${(bharti * rate).toFixed(2)} - ${commission} = ${calculated.toFixed(2)}`;
+            } else if (bharti > 0 && rate === 0) {
+                previewSpan.innerHTML = `${bharti} KG × Rate (0) = 0 - ${commission} = ${calculated.toFixed(2)}`;
+            } else if (bharti === 0 && rate > 0) {
+                previewSpan.innerHTML = `0 KG × ${rate} = 0 - ${commission} = ${calculated.toFixed(2)}`;
+            } else {
+                previewSpan.innerHTML = calculated.toFixed(2);
+            }
+        }
+    }
+
+    function calculateFromQty() {
+        let qty = parseFloat(qtyInput?.value) || 0;
+        let rate = parseFloat(rateInput?.value) || 0;
+        let commission = parseFloat(commissionInput?.value) || 0;
+
+        let calculated = (qty * rate) - commission;
+        if (calculated < 0) calculated = 0;
+
+        if ((bhartiInput?.value === '0' || bhartiInput?.value === '') && antInput && amountInput) {
+            antInput.value = calculated.toFixed(2);
+            amountInput.value = calculated.toFixed(2);
+            if (previewSpan) previewSpan.innerHTML = `${qty} × ${rate} = ${(qty * rate).toFixed(2)} - ${commission} = ${calculated.toFixed(2)}`;
+        }
+    }
+
+    // Add event listeners
+    if (bhartiInput) bhartiInput.addEventListener('input', calculateAnt);
+    if (rateInput) rateInput.addEventListener('input', calculateAnt);
+    if (commissionInput) commissionInput.addEventListener('input', calculateAnt);
+    if (qtyInput) qtyInput.addEventListener('input', calculateFromQty);
+
+    // Manual ant update also updates amount
+    if (antInput) {
+        antInput.addEventListener('input', function() {
+            if (amountInput) amountInput.value = this.value;
+            if (previewSpan) previewSpan.innerHTML = this.value;
+        });
+    }
+
+    // Live color change on transaction type select
+    const typeSelect = document.getElementById('transaction_type');
+    const amountInputField = document.getElementById('amount-input');
+
+    if (typeSelect) {
+        typeSelect.addEventListener('change', function () {
+            if (this.value === 'debit') {
+                this.style.borderColor = '#dc2626';
+                this.style.color = '#dc2626';
+                if (amountInputField) amountInputField.style.borderColor = '#dc2626';
+            } else if (this.value === 'credit') {
+                this.style.borderColor = '#2563eb';
+                this.style.color = '#2563eb';
+                if (amountInputField) amountInputField.style.borderColor = '#2563eb';
+            } else {
+                this.style.borderColor = 'var(--mist)';
+                this.style.color = '';
+                if (amountInputField) amountInputField.style.borderColor = 'var(--mist)';
+            }
+        });
+    }
+
+    // Initial calculation
+    calculateAnt();
+</script>
+{% endblock %}
+
+{% endblock %}

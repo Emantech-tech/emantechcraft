@@ -1,0 +1,501 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+.edit-wrapper { max-width: 800px; margin: auto; padding: 0 16px; }
+
+.edit-header { margin-bottom: 24px; text-align: center; }
+.edit-header h2 { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 5vw, 1.8rem); font-weight: 800; color: var(--ink); margin-bottom: 6px; }
+.edit-header h2 i { color: var(--gold); margin-right: 10px; }
+.edit-header p { color: var(--text-muted); font-size: 0.85rem; }
+.edit-header p i { margin: 0 4px; }
+
+.edit-card { background: var(--white); border: 1px solid var(--mist); border-radius: 24px; padding: clamp(20px, 5vw, 32px); box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+
+/* Transaction badge - رنگ دار */
+.transaction-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 50px; font-weight: 600; font-size: 0.8rem; margin-bottom: 20px; flex-wrap: wrap; }
+.transaction-badge.naam { background: rgba(220,38,38,0.1); color: #dc2626; }
+.transaction-badge.jama { background: rgba(26,86,219,0.1); color: #1a56db; }
+
+.form-group { margin-bottom: 18px; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; color: var(--ink); }
+.form-group label i { color: var(--gold); width: 24px; }
+.form-group input, .form-group select, .form-group textarea {
+    width: 100%; padding: 11px 14px; border: 1.5px solid var(--mist); border-radius: 12px;
+    font-size: 0.9rem; transition: all 0.25s; background: var(--white); font-family: inherit;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+}
+.form-group small { display: block; margin-top: 5px; font-size: 0.7rem; color: var(--text-muted); }
+
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+
+.help-box { background: var(--cream); border-radius: 12px; padding: 14px; margin-bottom: 20px; border-left: 3px solid var(--gold); }
+.help-box p { margin: 0; font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
+.help-box i { color: var(--gold); margin-right: 8px; }
+
+.calculation-preview { background: #fef9e8; padding: 10px 12px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px solid var(--gold); }
+.calculation-preview i { margin-right: 5px; }
+.calculation-preview span { font-weight: bold; color: var(--gold); }
+.calculation-preview #previewText { display: inline-block; word-break: break-word; }
+
+.button-group { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+.btn-save { flex: 1; min-width: 140px; background: var(--gold); color: white; border: none; padding: 12px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.25s; text-decoration: none; text-align: center; font-size: 0.9rem; }
+.btn-save:hover { background: var(--rust); transform: translateY(-2px); }
+.btn-cancel { flex: 1; min-width: 140px; background: var(--mist); color: var(--ink); border: none; padding: 12px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.25s; text-decoration: none; text-align: center; font-size: 0.9rem; }
+.btn-cancel:hover { background: #d4d0c4; transform: translateY(-2px); }
+
+.balance-info { background: var(--cream); border-radius: 12px; padding: 10px; margin: 18px 0; text-align: center; }
+.balance-info small { font-size: 0.75rem; }
+.balance-info strong { color: var(--gold); }
+
+/* Urdu Mode Styles */
+body.urdu-mode .edit-header { text-align: right; }
+body.urdu-mode .edit-header h2 i { margin-left: 10px; margin-right: 0; }
+body.urdu-mode .form-group label i { margin-left: 8px; margin-right: 0; }
+body.urdu-mode .help-box { border-left: none; border-right: 3px solid var(--gold); text-align: right; }
+body.urdu-mode .help-box i { margin-left: 8px; margin-right: 0; }
+body.urdu-mode .form-group label { text-align: right; }
+body.urdu-mode .form-group input,
+body.urdu-mode .form-group select,
+body.urdu-mode .form-group textarea { text-align: right; direction: rtl; }
+body.urdu-mode small { text-align: right; display: block; }
+body.urdu-mode .calculation-preview { direction: rtl; }
+body.urdu-mode .calculation-preview i { margin-left: 5px; margin-right: 0; }
+
+/* ============================================
+   RESPONSIVE MEDIA QUERIES
+   ============================================ */
+
+/* Tablet and below */
+@media (max-width: 768px) {
+    .edit-wrapper { padding: 0 12px; }
+    .edit-card { padding: 20px; border-radius: 20px; }
+    .edit-header h2 { font-size: 1.5rem; }
+    .button-group { flex-direction: column; }
+    .btn-save, .btn-cancel { min-width: auto; width: 100%; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; gap: 12px; }
+    .transaction-badge { font-size: 0.7rem; padding: 6px 12px; }
+    .help-box { padding: 12px; }
+    .help-box p { font-size: 0.75rem; }
+}
+
+/* Mobile Landscape */
+@media (max-width: 640px) {
+    .edit-wrapper { padding: 0 10px; }
+    .edit-card { padding: 16px; border-radius: 18px; }
+    .edit-header { margin-bottom: 18px; }
+    .edit-header h2 { font-size: 1.3rem; }
+    .edit-header p { font-size: 0.75rem; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { font-size: 0.8rem; margin-bottom: 6px; }
+    .form-group input, .form-group select, .form-group textarea {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+    .form-group small { font-size: 0.65rem; }
+    .transaction-badge { margin-bottom: 16px; }
+    .calculation-preview { padding: 8px 10px; font-size: 0.8rem; }
+    .balance-info { padding: 8px; margin: 14px 0; }
+    .balance-info small { font-size: 0.7rem; }
+    .btn-save, .btn-cancel { padding: 10px 16px; font-size: 0.85rem; }
+}
+
+/* Mobile Portrait */
+@media (max-width: 480px) {
+    .edit-wrapper { padding: 0 8px; }
+    .edit-card { padding: 14px; border-radius: 16px; }
+    .edit-header h2 { font-size: 1.2rem; }
+    .edit-header h2 i { font-size: 0.9rem; }
+    .edit-header p { font-size: 0.7rem; }
+    .transaction-badge {
+        font-size: 0.65rem;
+        padding: 5px 10px;
+        gap: 5px;
+        width: 100%;
+        justify-content: center;
+    }
+    .form-group label { font-size: 0.75rem; }
+    .form-group input, .form-group select, .form-group textarea {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+        border-radius: 10px;
+    }
+    .form-group small { font-size: 0.6rem; }
+    .help-box { padding: 10px; border-radius: 10px; }
+    .help-box p { font-size: 0.7rem; }
+    .calculation-preview {
+        padding: 6px 8px;
+        font-size: 0.75rem;
+        border-radius: 10px;
+    }
+    .calculation-preview i { font-size: 0.7rem; }
+    .balance-info { padding: 6px; margin: 12px 0; }
+    .balance-info small { font-size: 0.65rem; }
+    .btn-save, .btn-cancel {
+        padding: 8px 14px;
+        font-size: 0.8rem;
+        border-radius: 10px;
+    }
+    .grid-2, .grid-3 { gap: 10px; }
+}
+
+/* Extra small devices */
+@media (max-width: 360px) {
+    .edit-card { padding: 12px; }
+    .edit-header h2 { font-size: 1.1rem; }
+    .form-group label { font-size: 0.7rem; }
+    .form-group input, .form-group select, .form-group textarea {
+        padding: 7px 9px;
+        font-size: 0.75rem;
+    }
+    .btn-save, .btn-cancel { padding: 7px 12px; font-size: 0.75rem; }
+    .transaction-badge { font-size: 0.6rem; }
+    .help-box p { font-size: 0.65rem; }
+}
+
+/* Landscape mode on mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .edit-wrapper { padding: 0 12px; }
+    .edit-card { padding: 14px; }
+    .edit-header { margin-bottom: 12px; }
+    .form-group { margin-bottom: 10px; }
+    .transaction-badge { margin-bottom: 12px; }
+    .button-group { margin-top: 16px; }
+    .balance-info { margin: 10px 0; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-wrapper">
+    <div class="edit-header">
+        <h2>
+            <i class="fas fa-pen"></i>
+            <span class="t" data-en="Edit Transaction" data-ur="ٹرانزیکشن تبدیل کریں">Edit Transaction</span>
+        </h2>
+        <p>
+            <i class="fas fa-user"></i> {{ party.name }} |
+            <i class="fas fa-calendar"></i> {{ transaction.date|date:"d M Y" }}
+        </p>
+    </div>
+
+    <div class="edit-card">
+
+        <!-- Transaction Type Badge - رنگ دار -->
+        {% if transaction.debit > 0 %}
+        <div class="transaction-badge naam">
+            <i class="fas fa-arrow-up"></i>
+            <span class="t" data-en="Current: Naam (Debit) — Party will pay you" data-ur="موجودہ: نام — پارٹی آپ کو دے گی">Current: Naam (Debit) — Party will pay you</span>
+        </div>
+        {% else %}
+        <div class="transaction-badge jama">
+            <i class="fas fa-arrow-down"></i>
+            <span class="t" data-en="Current: Jama (Credit) — You will pay party" data-ur="موجودہ: جمع — آپ پارٹی کو دیں گے">Current: Jama (Credit) — You will pay party</span>
+        </div>
+        {% endif %}
+
+        <!-- Help Box -->
+        <div class="help-box">
+            <p>
+                <i class="fas fa-info-circle"></i>
+                <span class="t"
+                    data-en="Editing will reverse the old amount and apply the new one. Party balance will update automatically."
+                    data-ur="تبدیلی سے پرانی رقم واپس ہو گی اور نئی رقم لگے گی۔ بیلنس خود بخود اپ ڈیٹ ہو گا۔">
+                    Editing will reverse the old amount and apply the new one. Party balance will update automatically.
+                </span>
+            </p>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <!-- Date + Room No -->
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-calendar-alt"></i>
+                        <span class="t" data-en="Date" data-ur="تاریخ">Date</span> *
+                    </label>
+                    <input type="date" name="date" value="{{ transaction.date|date:'Y-m-d' }}" required>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-door-open"></i>
+                        <span class="t" data-en="Room Number" data-ur="روم نمبر">Room Number</span>
+                    </label>
+                    <input type="text" name="room_no" value="{{ transaction.room_no|default:'' }}"
+                           placeholder="e.g., 101, A-12">
+                </div>
+            </div>
+
+            <!-- Product / Items -->
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-box"></i>
+                    <span class="t" data-en="Product / Items" data-ur="اشیاء / پروڈکٹ">Product / Items</span>
+                </label>
+                <input type="text" name="product_name" value="{{ transaction.product_name|default:'' }}"
+                       placeholder="e.g., SULPHUR 80WP">
+            </div>
+
+            <!-- Qty + Rate -->
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-weight-hanging"></i>
+                        <span class="t" data-en="Quantity" data-ur="تعداد">Quantity</span>
+                    </label>
+                    <input type="number" name="qty" step="0.001" value="{{ transaction.qty|default:0 }}" id="editQty">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-tag"></i>
+                        <span class="t" data-en="Rate" data-ur="ریٹ">Rate</span>
+                    </label>
+                    <input type="number" name="rate" step="0.01" value="{{ transaction.rate|default:0 }}" id="editRate">
+                </div>
+            </div>
+
+            <!-- Commission, Bharti (KG), Ant (Net Amount) -->
+            <div class="grid-3">
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-percent"></i>
+                        <span class="t" data-en="Commission" data-ur="کمیشن">Commission</span>
+                    </label>
+                    <input type="number" name="commission" step="0.01" value="{{ transaction.commission|default:0 }}" id="editCommission">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-weight"></i>
+                        <span class="t" data-en="Bharti (KG)" data-ur="بھرتی (کلوگرام)">Bharti (KG)</span>
+                    </label>
+                    <input type="number" name="bharti" step="0.001" value="{{ transaction.bharti|default:0 }}" id="editBharti">
+                    <small>Weight in KG</small>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-calculator"></i>
+                        <span class="t" data-en="Ant (Net Amount)" data-ur="آنٹ (خالص رقم)">Ant (Net Amount)</span>
+                    </label>
+                    <input type="number" name="ant" step="0.01" value="{{ transaction.ant|default:0 }}" id="editAnt"
+                           style="background: #fef9e8;">
+                    <small>Bharti × Rate - Commission</small>
+                </div>
+            </div>
+
+            <!-- Calculation Preview Box -->
+            <div class="calculation-preview" id="calcPreview">
+                <i class="fas fa-chart-line"></i>
+                <span class="t" data-en="Calculation:" data-ur="حساب:">Calculation:</span>
+                <span id="previewText">—</span>
+            </div>
+
+            <!-- Rokad (Cash) -->
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span class="t" data-en="Rokad (Cash)" data-ur="روکڑ (نقد)">Rokad (Cash)</span>
+                </label>
+                <input type="number" name="rokad" step="0.01" value="{{ transaction.rokad|default:0 }}"
+                       placeholder="0.00">
+                <small>
+                    <span class="t" data-en="Optional - Cash amount" data-ur="اختیاری - نقد رقم">Optional - Cash amount</span>
+                </small>
+            </div>
+
+            <!-- Transaction Type - رنگ دار -->
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-exchange-alt"></i>
+                    <span class="t" data-en="Transaction Type" data-ur="ٹرانزیکشن کی قسم">Transaction Type</span> *
+                </label>
+                <select name="transaction_type" id="edit_type" required>
+                    <option value="credit" {% if transaction.credit > 0 %}selected{% endif %}>
+                        🔵 <span class="t" data-en="Jama (Credit) - You will pay party" data-ur="جمع - آپ پارٹی کو دیں گے">Jama (Credit) - You will pay party</span>
+                    </option>
+                    <option value="debit" {% if transaction.debit > 0 %}selected{% endif %}>
+                        🔴 <span class="t" data-en="Naam (Debit) - Party will pay you" data-ur="نام - پارٹی آپ کو دے گی">Naam (Debit) - Party will pay you</span>
+                    </option>
+                </select>
+                <small>
+                    <span class="t"
+                        data-en="🔴 Naam (Red) = Party owes you | 🔵 Jama (Blue) = You owe party"
+                        data-ur="🔴 نام (سرخ) = پارٹی آپ کو دے گی | 🔵 جمع (نیلا) = آپ پارٹی کو دیں گے">
+                        🔴 Naam (Red) = Party owes you | 🔵 Jama (Blue) = You owe party
+                    </span>
+                </small>
+            </div>
+
+            <!-- Amount (will be auto-filled from Ant) -->
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-rupee-sign"></i>
+                    <span class="t" data-en="Amount" data-ur="رقم">Amount</span> *
+                </label>
+                <input type="number" name="amount" step="0.01" id="edit_amount" required
+                       value="{% if transaction.debit > 0 %}{{ transaction.debit }}{% else %}{{ transaction.credit }}{% endif %}"
+                       placeholder="0.00" style="background: #fef9e8;">
+                <small>
+                    <span class="t" data-en="Amount auto-filled from Ant" data-ur="رقم خود بخود انت سے آئے گی">Amount auto-filled from Ant</span>
+                </small>
+            </div>
+
+            <!-- Reference -->
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-link"></i>
+                    <span class="t" data-en="Reference" data-ur="حوالہ">Reference</span>
+                </label>
+                <input type="text" name="reference" value="{{ transaction.reference|default:'' }}"
+                       placeholder="e.g., PR No, Invoice No">
+            </div>
+
+            <!-- Note -->
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-pencil-alt"></i>
+                    <span class="t" data-en="Note" data-ur="نوٹ">Note</span>
+                </label>
+                <textarea name="note" rows="3">{{ transaction.note|default:'' }}</textarea>
+            </div>
+
+            <!-- Balance Info -->
+            <div class="balance-info">
+                <small style="color: var(--text-muted);">
+                    <i class="fas fa-chart-line"></i>
+                    <span class="t" data-en="Current Party Balance:" data-ur="پارٹی کا موجودہ بیلنس:">Current Party Balance:</span>
+                    <strong style="color: var(--gold);">₨ {{ party.net_balance }}</strong>
+                </small>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-save"></i>
+                    <span class="t" data-en="Update Transaction" data-ur="ٹرانزیکشن اپ ڈیٹ کریں">Update Transaction</span>
+                </button>
+                <a href="{% url 'party_detail' id=party.id %}" class="btn-cancel">
+                    <i class="fas fa-times"></i>
+                    <span class="t" data-en="Cancel" data-ur="منسوخ کریں">Cancel</span>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function applyLang(lang) {
+        document.querySelectorAll('[data-en][data-ur]').forEach(el => {
+            el.textContent = lang === 'ur' ? el.dataset.ur : el.dataset.en;
+        });
+    }
+    const savedLang = localStorage.getItem('munshi_lang') || 'en';
+    applyLang(savedLang);
+
+    const origSetLang = window.setLang;
+    window.setLang = function(lang) {
+        if (origSetLang) origSetLang(lang);
+        applyLang(lang);
+    };
+
+    // Auto calculation: Ant = (Bharti × Rate) - Commission
+    const bhartiInput = document.getElementById('editBharti');
+    const rateInput = document.getElementById('editRate');
+    const commissionInput = document.getElementById('editCommission');
+    const antInput = document.getElementById('editAnt');
+    const amountInput = document.getElementById('edit_amount');
+    const qtyInput = document.getElementById('editQty');
+    const previewSpan = document.getElementById('previewText');
+
+    function calculateAnt() {
+        let bharti = parseFloat(bhartiInput?.value) || 0;
+        let rate = parseFloat(rateInput?.value) || 0;
+        let commission = parseFloat(commissionInput?.value) || 0;
+
+        let calculated = (bharti * rate) - commission;
+        if (calculated < 0) calculated = 0;
+
+        if (antInput) antInput.value = calculated.toFixed(2);
+        if (amountInput) amountInput.value = calculated.toFixed(2);
+
+        // Update preview
+        if (previewSpan) {
+            if (bharti > 0 && rate > 0) {
+                previewSpan.innerHTML = `${bharti} KG × ${rate} = ${(bharti * rate).toFixed(2)} - ${commission} = ${calculated.toFixed(2)}`;
+            } else if (bharti > 0 && rate === 0) {
+                previewSpan.innerHTML = `${bharti} KG × Rate (0) = 0 - ${commission} = ${calculated.toFixed(2)}`;
+            } else if (bharti === 0 && rate > 0) {
+                previewSpan.innerHTML = `0 KG × ${rate} = 0 - ${commission} = ${calculated.toFixed(2)}`;
+            } else {
+                previewSpan.innerHTML = calculated.toFixed(2);
+            }
+        }
+    }
+
+    // If quantity is used instead of bharti
+    function calculateFromQty() {
+        let qty = parseFloat(qtyInput?.value) || 0;
+        let rate = parseFloat(rateInput?.value) || 0;
+        let commission = parseFloat(commissionInput?.value) || 0;
+
+        let calculated = (qty * rate) - commission;
+        if (calculated < 0) calculated = 0;
+
+        if (bhartiInput && (bhartiInput.value === '0' || bhartiInput.value === '')) {
+            if (antInput) antInput.value = calculated.toFixed(2);
+            if (amountInput) amountInput.value = calculated.toFixed(2);
+            if (previewSpan) previewSpan.innerHTML = `${qty} × ${rate} = ${(qty * rate).toFixed(2)} - ${commission} = ${calculated.toFixed(2)}`;
+        }
+    }
+
+    // Add event listeners
+    if (bhartiInput) bhartiInput.addEventListener('input', calculateAnt);
+    if (rateInput) rateInput.addEventListener('input', calculateAnt);
+    if (commissionInput) commissionInput.addEventListener('input', calculateAnt);
+    if (qtyInput) qtyInput.addEventListener('input', calculateFromQty);
+
+    // Manual ant update also updates amount
+    if (antInput) {
+        antInput.addEventListener('input', function() {
+            if (amountInput) amountInput.value = this.value;
+            if (previewSpan) previewSpan.innerHTML = this.value;
+        });
+    }
+
+    // Live border color on transaction type change
+    const editType = document.getElementById('edit_type');
+
+    function updateColors(val) {
+        if (val === 'debit') {
+            editType.style.borderColor = '#dc2626';
+            editType.style.color = '#dc2626';
+            if (amountInput) amountInput.style.borderColor = '#dc2626';
+        } else if (val === 'credit') {
+            editType.style.borderColor = '#2563eb';
+            editType.style.color = '#2563eb';
+            if (amountInput) amountInput.style.borderColor = '#2563eb';
+        } else {
+            editType.style.borderColor = 'var(--mist)';
+            editType.style.color = '';
+            if (amountInput) amountInput.style.borderColor = 'var(--mist)';
+        }
+    }
+
+    // Apply color on page load based on current type
+    if (editType) {
+        updateColors(editType.value);
+        editType.addEventListener('change', function () {
+            updateColors(this.value);
+        });
+    }
+
+    // Initial calculation
+    calculateAnt();
+</script>
+{% endblock %}

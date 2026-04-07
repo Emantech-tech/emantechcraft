@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" dir="ltr" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سبسکرائب کریں — منشی</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        :root {
+            --ink:        #0f0e0d;
+            --cream:      #faf7f2;
+            --gold:       #c9a84c;
+            --gold-light: #e8c96a;
+            --rust:       #b85c38;
+            --sage:       #4a7c6f;
+            --mist:       #e8e4dd;
+            --white:      #ffffff;
+            --text-muted: #7a7067;
+            --urdu-font:  'Noto Nastaliq Urdu', serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--cream);
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* NOISE BACKGROUND */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.4;
+        }
+
+        /* URDU MODE */
+        body.urdu-mode {
+            font-family: var(--urdu-font);
+            direction: rtl;
+        }
+        body.urdu-mode h1, body.urdu-mode h2, body.urdu-mode h3,
+        body.urdu-mode p, body.urdu-mode a, body.urdu-mode button,
+        body.urdu-mode label, body.urdu-mode span {
+            font-family: var(--urdu-font);
+            line-height: 2.2;
+        }
+        body.urdu-mode input,
+        body.urdu-mode select {
+            font-family: var(--urdu-font);
+            direction: rtl;
+            text-align: right;
+        }
+        body.urdu-mode i.fas { direction: ltr; display: inline-block; }
+
+        /* TOP BAR */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            background: rgba(250,247,242,0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(201,168,76,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--gold), var(--rust));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 15px;
+            box-shadow: 0 4px 12px rgba(201,168,76,0.3);
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .logo-text span { color: var(--gold); }
+
+        /* Language toggle */
+        .lang-bar {
+            display: flex;
+            background: var(--mist);
+            padding: 3px;
+            border-radius: 50px;
+            gap: 2px;
+        }
+
+        .lang-bar button {
+            padding: 4px 12px;
+            border-radius: 50px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.25s;
+            line-height: 1.4;
+        }
+
+        #enBtn { font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 600; }
+        #urBtn { font-family: 'Noto Nastaliq Urdu', serif; font-size: 0.9rem; padding: 2px 12px 4px; }
+
+        .lang-bar button.active {
+            background: var(--white);
+            color: var(--ink);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Subscribe Wrapper */
+        .subscribe-wrapper {
+            max-width: 550px;
+            margin: 40px auto;
+            flex: 1;
+        }
+
+        .subscribe-card {
+            background: var(--white);
+            border: 1px solid var(--mist);
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        }
+
+        .subscribe-header {
+            background: linear-gradient(135deg, #fff5f0, #ffffff);
+            padding: 32px 32px 24px;
+            text-align: center;
+            border-bottom: 1px solid var(--mist);
+        }
+
+        .subscribe-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(184,92,56,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .subscribe-icon i {
+            font-size: 2.5rem;
+            color: var(--rust);
+        }
+
+        .subscribe-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .subscribe-header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .subscribe-body {
+            padding: 32px;
+        }
+
+        /* Bank Details */
+        .bank-details {
+            background: var(--cream);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--mist);
+        }
+
+        .bank-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--gold);
+        }
+
+        .bank-title i {
+            color: var(--gold);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detail-label i {
+            color: var(--gold);
+            width: 20px;
+        }
+
+        .detail-value {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--ink);
+        }
+
+        .detail-value.amount {
+            color: var(--rust);
+            font-size: 1.2rem;
+        }
+
+        /* Copy Button */
+        .copy-btn {
+            background: transparent;
+            border: 1px solid var(--mist);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: 10px;
+        }
+
+        .copy-btn:hover {
+            background: var(--gold);
+            color: white;
+            border-color: var(--gold);
+        }
+
+        /* Instructions */
+        .instructions {
+            background: #f8f6f2;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .instructions h4 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .instructions h4 i {
+            color: var(--gold);
+        }
+
+        .instructions ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .whatsapp-number {
+            background: #25D366;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: var(--gold);
+            color: var(--ink);
+            border: none;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            text-decoration: none;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: var(--rust);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Page Footer */
+        .page-footer {
+            text-align: center;
+            padding: 20px 16px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--mist);
+            margin-top: 40px;
+        }
+
+        /* URDU MODE NUMBER FIX */
+        body.urdu-mode .detail-value,
+        body.urdu-mode .copy-btn,
+        body.urdu-mode .whatsapp-number,
+        body.urdu-mode .detail-value.amount {
+            direction: ltr !important;
+            display: inline-block;
+            unicode-bidi: embed;
+        }
+
+        body.urdu-mode .detail-row {
+            flex-direction: row-reverse;
+            justify-content: space-between;
+        }
+
+        body.urdu-mode .detail-label {
+            flex-direction: row-reverse;
+        }
+
+        body.urdu-mode .detail-value {
+            text-align: left;
+        }
+
+        body.urdu-mode .copy-btn {
+            margin-left: 10px;
+            margin-right: 0;
+        }
+
+        body.urdu-mode .instructions ol {
+            padding-right: 20px;
+            padding-left: 0;
+        }
+
+        @media (max-width: 640px) {
+            .subscribe-wrapper {
+                margin: 20px auto;
+            }
+
+            .subscribe-header {
+                padding: 24px;
+            }
+
+            .subscribe-body {
+                padding: 20px;
+            }
+
+            .detail-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            body.urdu-mode .detail-row {
+                flex-direction: column;
+                align-items: flex-end;
+            }
+
+            body.urdu-mode .detail-value {
+                text-align: right;
+            }
+        }
+    </style>
+</head>
+<body id="mainBody">
+
+<!-- TOP BAR -->
+<div class="top-bar">
+    <a href="/" class="logo-link">
+        <div class="logo-icon"><i class="fas fa-book-open"></i></div>
+        <span class="logo-text">Mun<span>shi</span></span>
+    </a>
+    <div class="lang-bar">
+        <button id="enBtn" class="active" onclick="setLang('en')">EN</button>
+        <button id="urBtn" onclick="setLang('ur')">اردو</button>
+    </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="subscribe-wrapper">
+    <div class="subscribe-card">
+        <div class="subscribe-header">
+            <div class="subscribe-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h2>
+                <span class="t" data-en="Subscribe to Continue" data-ur="جاری رکھنے کے لیے سبسکرائب کریں">Subscribe to Continue</span>
+            </h2>
+            <p>
+                <span class="t" data-en="Please subscribe to access your account."
+                      data-ur="براہ کرم اپنے اکاؤنٹ تک رسائی کے لیے سبسکرائب کریں۔">
+                    Please subscribe to access your account.
+                </span>
+            </p>
+        </div>
+
+        <div class="subscribe-body">
+
+            <!-- Bank Details -->
+            <div class="bank-details">
+                <div class="bank-title">
+                    <i class="fas fa-university"></i>
+                    <span class="t" data-en="Bank Details" data-ur="بینک کی تفصیلات">Bank Details</span>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i class="fas fa-building"></i>
+                        <span class="t" data-en="Bank Name" data-ur="بینک کا نام">Bank Name</span>
+                    </div>
+                    <div class="detail-value">
+                        {{ bank_details.bank_name }}
+                        <button class="copy-btn" onclick="copyText('{{ bank_details.bank_name }}')">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i class="fas fa-user"></i>
+                        <span class="t" data-en="Account Title" data-ur="اکاؤنٹ ٹائٹل">Account Title</span>
+                    </div>
+                    <div class="detail-value">
+                        {{ bank_details.account_title }}
+                        <button class="copy-btn" onclick="copyText('{{ bank_details.account_title }}')">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i class="fas fa-credit-card"></i>
+                        <span class="t" data-en="Account Number" data-ur="اکاؤنٹ نمبر">Account Number</span>
+                    </div>
+                    <div class="detail-value">
+                        {{ bank_details.account_number }}
+                        <button class="copy-btn" onclick="copyText('{{ bank_details.account_number }}')">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i class="fas fa-globe"></i>
+                        <span class="t" data-en="IBAN" data-ur="آئی بی اے این">IBAN</span>
+                    </div>
+                    <div class="detail-value">
+                        {{ bank_details.iban }}
+                        <button class="copy-btn" onclick="copyText('{{ bank_details.iban }}')">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i class="fas fa-code-branch"></i>
+                        <span class="t" data-en="Branch Code" data-ur="برانچ کوڈ">Branch Code</span>
+                    </div>
+                    <div class="detail-value">
+                        {{ bank_details.branch_code }}
+                        <button class="copy-btn" onclick="copyText('{{ bank_details.branch_code }}')">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i class="fas fa-rupee-sign"></i>
+                        <span class="t" data-en="Amount" data-ur="رقم">Amount</span>
+                    </div>
+                    <div class="detail-value amount">
+                        <strong>₨ {{ bank_details.amount }}</strong>
+                        <span style="font-size: 0.7rem;">/ month</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="instructions">
+                <h4>
+                    <i class="fas fa-info-circle"></i>
+                    <span class="t" data-en="How to Subscribe" data-ur="سبسکرائب کرنے کا طریقہ">How to Subscribe</span>
+                </h4>
+                <ol>
+                    <li>
+                        <span class="t" data-en="Transfer the above amount to the Meezan Bank account"
+                              data-ur="مذکورہ بالا رقم میزبان بینک اکاؤنٹ میں ٹرانسفر کریں">
+                            Transfer the above amount to the Meezan Bank account
+                        </span>
+                    </li>
+                    <li>
+                        <span class="t" data-en="Take a screenshot of the payment confirmation"
+                              data-ur="پیمنٹ کنفرمیشن کا اسکرین شاٹ لیں">
+                            Take a screenshot of the payment confirmation
+                        </span>
+                    </li>
+                    <li>
+                        <span class="t" data-en="Send the screenshot on WhatsApp"
+                              data-ur="اسکرین شاٹ واٹس ایپ پر بھیجیں">
+                            Send the screenshot on WhatsApp
+                        </span>
+                        <div class="whatsapp-number">
+                            <i class="fab fa-whatsapp"></i>
+                            {{ bank_details.whatsapp }}
+                        </div>
+                    </li>
+                    <li>
+                        <span class="t" data-en="After admin activation, you can login to access dashboard"
+                              data-ur="ایڈمن ایکٹیویشن کے بعد آپ لاگ ان کر کے ڈیش بورڈ استعمال کر سکتے ہیں">
+                            After admin activation, you can login to access dashboard
+                        </span>
+                    </li>
+                </ol>
+            </div>
+
+            <!-- Only Contact Support Button -->
+            <div class="button-group">
+                <a href="https://wa.me/{{ bank_details.whatsapp }}?text=Hello%2C%20I%20want%20to%20subscribe%20to%20Munshi%20system"
+                   target="_blank" class="btn-primary">
+                    <i class="fab fa-whatsapp"></i>
+                    <span class="t" data-en="Contact Support on WhatsApp" data-ur="واٹس ایپ پر سپورٹ سے رابطہ کریں">Contact Support on WhatsApp</span>
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- PAGE FOOTER -->
+<div class="page-footer">
+    &copy; 2026 Munshi — Commission Agent System
+</div>
+
+<script>
+// Copy text to clipboard
+function copyText(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        const btns = document.querySelectorAll('.copy-btn');
+        btns.forEach(btn => {
+            btn.innerHTML = '<i class="fas fa-check"></i>';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-copy"></i>';
+            }, 1500);
+        });
+    });
+}
+
+// Language Strings
+var strings = {
+    en: {
+        cardTitle: 'Subscribe to Continue',
+        cardSubtitle: 'Please subscribe to access your account.',
+        bankTitle: 'Bank Details',
+        bankName: 'Bank Name',
+        accountTitle: 'Account Title',
+        accountNumber: 'Account Number',
+        iban: 'IBAN',
+        branchCode: 'Branch Code',
+        amount: 'Amount',
+        instructionTitle: 'How to Subscribe',
+        step1: 'Transfer the above amount to the Meezan Bank account',
+        step2: 'Take a screenshot of the payment confirmation',
+        step3: 'Send the screenshot on WhatsApp',
+        step4: 'After admin activation, you can login to access dashboard',
+        contactBtn: 'Contact Support on WhatsApp'
+    },
+    ur: {
+        cardTitle: 'جاری رکھنے کے لیے سبسکرائب کریں',
+        cardSubtitle: 'براہ کرم اپنے اکاؤنٹ تک رسائی کے لیے سبسکرائب کریں۔',
+        bankTitle: 'بینک کی تفصیلات',
+        bankName: 'بینک کا نام',
+        accountTitle: 'اکاؤنٹ ٹائٹل',
+        accountNumber: 'اکاؤنٹ نمبر',
+        iban: 'آئی بی اے این',
+        branchCode: 'برانچ کوڈ',
+        amount: 'رقم',
+        instructionTitle: 'سبسکرائب کرنے کا طریقہ',
+        step1: 'مذکورہ بالا رقم میزبان بینک اکاؤنٹ میں ٹرانسفر کریں',
+        step2: 'پیمنٹ کنفرمیشن کا اسکرین شاٹ لیں',
+        step3: 'اسکرین شاٹ واٹس ایپ پر بھیجیں',
+        step4: 'ایڈمن ایکٹیویشن کے بعد آپ لاگ ان کر کے ڈیش بورڈ استعمال کر سکتے ہیں',
+        contactBtn: 'واٹس ایپ پر سپورٹ سے رابطہ کریں'
+    }
+};
+// Auto redirect when subscription becomes active
+function checkAndRedirect() {
+    fetch('/api/check-subscription-status/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.has_active_access) {
+                window.location.href = "{% url 'dashboard' %}";
+            }
+        })
+        .catch(error => console.log('Error:', error));
+}
+
+// Check every 10 seconds
+setInterval(checkAndRedirect, 10000);
+// Check immediately on page load
+setTimeout(checkAndRedirect, 2000);
+function setLang(lang) {
+    var body = document.getElementById('mainBody');
+    var html = document.getElementById('htmlRoot');
+    var c = strings[lang];
+
+    if (lang === 'ur') {
+        body.classList.add('urdu-mode');
+        html.setAttribute('dir', 'rtl');
+        html.setAttribute('lang', 'ur');
+        document.getElementById('enBtn').classList.remove('active');
+        document.getElementById('urBtn').classList.add('active');
+    } else {
+        body.classList.remove('urdu-mode');
+        html.setAttribute('dir', 'ltr');
+        html.setAttribute('lang', 'en');
+        document.getElementById('enBtn').classList.add('active');
+        document.getElementById('urBtn').classList.remove('active');
+    }
+
+    document.querySelectorAll('.t[data-en][data-ur]').forEach(el => {
+        el.textContent = lang === 'ur' ? el.dataset.ur : el.dataset.en;
+    });
+
+    localStorage.setItem('munshi_lang', lang);
+}
+
+// Restore saved language
+var saved = localStorage.getItem('munshi_lang') || 'en';
+setLang(saved);
+</script>
+
+</body>
+</html>

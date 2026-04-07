@@ -1,0 +1,1093 @@
+{% load crispy_forms_tags %}
+<!DOCTYPE html>
+<html lang="en" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Sign Up — Munshi | منشی — سائن اپ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        :root {
+            --ink:        #0f0e0d;
+            --cream:      #faf7f2;
+            --gold:       #c9a84c;
+            --gold-light: #e8c96a;
+            --rust:       #b85c38;
+            --sage:       #4a7c6f;
+            --mist:       #e8e4dd;
+            --white:      #ffffff;
+            --text-muted: #7a7067;
+            --error-red:  #dc3545;
+            --error-bg:   #f8d7da;
+            --success-green: #28a745;
+            --success-bg: #d4edda;
+            --urdu-font:  'Noto Nastaliq Urdu', serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--cream);
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.4;
+        }
+
+        /* Urdu Mode */
+        body.urdu-mode {
+            font-family: var(--urdu-font);
+            direction: rtl;
+        }
+        body.urdu-mode label,
+        body.urdu-mode .form-text,
+        body.urdu-mode .error-message {
+            font-family: var(--urdu-font);
+        }
+        body.urdu-mode input,
+        body.urdu-mode select {
+            font-family: var(--urdu-font);
+            direction: rtl;
+            text-align: right;
+        }
+        body.urdu-mode .form-group { text-align: right; }
+        body.urdu-mode .lang-bar { flex-direction: row-reverse; }
+        body.urdu-mode i.fas { direction: ltr; display: inline-block; }
+        body.urdu-mode .submit-btn i { margin-left: 8px; margin-right: 0; }
+        body.urdu-mode .otp-group { flex-direction: row-reverse; }
+
+        /* Top Bar - Responsive */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background: rgba(250,247,242,0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(201,168,76,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .logo-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 32px; height: 32px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--gold), var(--rust));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .logo-text span { color: var(--gold); }
+
+        .lang-bar {
+            display: flex;
+            background: var(--mist);
+            padding: 3px;
+            border-radius: 50px;
+            gap: 2px;
+        }
+
+        .lang-bar button {
+            padding: 4px 10px;
+            border-radius: 50px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.25s;
+        }
+
+        #enBtn { font-family: 'DM Sans', sans-serif; font-size: 0.7rem; font-weight: 600; }
+        #urBtn { font-family: 'Noto Nastaliq Urdu', serif; font-size: 0.85rem; padding: 2px 10px 4px; }
+
+        .lang-bar button.active {
+            background: var(--white);
+            color: var(--ink);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Page Layout */
+        .page-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px 40px;
+        }
+
+        /* Signup Card - Responsive */
+        .signup-card {
+            background: var(--white);
+            border-radius: 24px;
+            border: 1px solid var(--mist);
+            padding: clamp(24px, 6vw, 48px) clamp(20px, 5vw, 40px) clamp(24px, 6vw, 40px);
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.07);
+            position: relative;
+        }
+
+        .signup-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--gold), var(--rust));
+            border-radius: 24px 24px 0 0;
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .card-icon {
+            width: 50px; height: 50px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(184,92,56,0.1));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            color: var(--gold);
+            margin: 0 auto 12px;
+        }
+
+        .card-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.4rem, 5vw, 1.9rem);
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 6px;
+        }
+
+        body.urdu-mode .card-header h2 {
+            font-family: var(--urdu-font);
+            font-size: clamp(1.3rem, 5vw, 1.7rem);
+        }
+
+        .card-header p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Messages */
+        .messages-container {
+            margin-bottom: 16px;
+        }
+
+        .alert {
+            padding: 10px 14px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 6px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid var(--mist);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: var(--ink);
+            background: var(--white);
+            transition: all 0.25s;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+        }
+
+        input.field-error {
+            border-color: var(--error-red);
+            background-color: #fff8f8;
+        }
+
+        input:disabled {
+            background-color: #f5f5f5;
+            cursor: not-allowed;
+        }
+
+        .form-text {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            line-height: 1.4;
+            display: block;
+        }
+
+        .error-message {
+            color: var(--error-red);
+            font-size: 0.72rem;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--error-bg);
+            padding: 6px 10px;
+            border-radius: 10px;
+        }
+
+        /* OTP Section - Responsive */
+        .otp-section {
+            background: #f0f4f8;
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 20px;
+            border: 1px solid var(--mist);
+        }
+
+        .otp-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .otp-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .otp-group input {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .send-otp-btn, .verify-otp-btn {
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            font-size: 0.8rem;
+        }
+
+        .send-otp-btn {
+            background: linear-gradient(135deg, var(--gold), var(--rust));
+            color: white;
+            border: none;
+        }
+
+        .send-otp-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .verify-otp-btn {
+            background: var(--sage);
+            color: white;
+            border: none;
+        }
+
+        .otp-status {
+            margin-top: 10px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .otp-status.success {
+            color: var(--success-green);
+        }
+
+        .otp-status.error {
+            color: var(--error-red);
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--gold), var(--rust));
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 12px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 22px 0 16px;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--mist);
+        }
+
+        .card-footer {
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .card-footer p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .card-footer a {
+            color: var(--gold);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .page-footer {
+            text-align: center;
+            padding: 16px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--mist);
+        }
+
+        /* ============================================
+           RESPONSIVE MEDIA QUERIES
+           ============================================ */
+
+        /* Tablet and below */
+        @media (max-width: 768px) {
+            .top-bar {
+                padding: 10px 16px;
+            }
+            .page-wrap {
+                padding: 20px 12px 32px;
+            }
+            .signup-card {
+                border-radius: 20px;
+            }
+        }
+
+        /* Mobile Landscape */
+        @media (max-width: 640px) {
+            .top-bar {
+                padding: 8px 14px;
+            }
+            .logo-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+            .logo-text {
+                font-size: 1rem;
+            }
+            .lang-bar button {
+                padding: 3px 8px;
+                font-size: 0.65rem;
+            }
+            #urBtn {
+                font-size: 0.8rem;
+                padding: 1px 8px 3px;
+            }
+            .page-wrap {
+                padding: 16px 10px 24px;
+            }
+            .signup-card {
+                padding: 24px 18px 28px;
+                border-radius: 18px;
+            }
+            .card-header {
+                margin-bottom: 18px;
+            }
+            .card-icon {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+                margin-bottom: 10px;
+            }
+            .card-header h2 {
+                font-size: 1.5rem;
+            }
+            .card-header p {
+                font-size: 0.75rem;
+            }
+            .form-group {
+                margin-bottom: 14px;
+            }
+            label {
+                font-size: 0.75rem;
+                margin-bottom: 5px;
+            }
+            input {
+                padding: 9px 12px;
+                font-size: 0.8rem;
+                border-radius: 10px;
+            }
+            .form-text {
+                font-size: 0.65rem;
+            }
+            .otp-section {
+                padding: 12px;
+                margin-bottom: 16px;
+            }
+            .otp-group {
+                flex-direction: column;
+            }
+            .otp-group input {
+                width: 100%;
+            }
+            .send-otp-btn, .verify-otp-btn {
+                width: 100%;
+                padding: 9px 14px;
+                font-size: 0.75rem;
+            }
+            .submit-btn {
+                padding: 10px;
+                font-size: 0.85rem;
+            }
+            .divider {
+                margin: 18px 0 14px;
+                font-size: 0.7rem;
+            }
+            .card-footer p {
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Mobile Portrait */
+        @media (max-width: 480px) {
+            .top-bar {
+                padding: 6px 12px;
+            }
+            .logo-icon {
+                width: 26px;
+                height: 26px;
+                font-size: 11px;
+            }
+            .logo-text {
+                font-size: 0.9rem;
+            }
+            .lang-bar button {
+                padding: 2px 7px;
+                font-size: 0.6rem;
+            }
+            #urBtn {
+                font-size: 0.75rem;
+            }
+            .page-wrap {
+                padding: 12px 8px 20px;
+            }
+            .signup-card {
+                padding: 20px 14px 22px;
+                border-radius: 16px;
+            }
+            .card-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+                border-radius: 14px;
+            }
+            .card-header h2 {
+                font-size: 1.3rem;
+            }
+            .card-header p {
+                font-size: 0.7rem;
+            }
+            .form-group {
+                margin-bottom: 12px;
+            }
+            label {
+                font-size: 0.7rem;
+            }
+            input {
+                padding: 8px 11px;
+                font-size: 0.75rem;
+                border-radius: 9px;
+            }
+            .error-message {
+                font-size: 0.68rem;
+                padding: 5px 8px;
+            }
+            .otp-section {
+                padding: 10px;
+                border-radius: 12px;
+            }
+            .otp-title {
+                font-size: 0.8rem;
+                margin-bottom: 8px;
+            }
+            .send-otp-btn, .verify-otp-btn {
+                padding: 8px 12px;
+                font-size: 0.7rem;
+                border-radius: 10px;
+            }
+            .submit-btn {
+                padding: 9px;
+                font-size: 0.8rem;
+            }
+            .divider {
+                margin: 16px 0 12px;
+            }
+            .card-footer p {
+                font-size: 0.7rem;
+            }
+            .page-footer {
+                padding: 12px;
+                font-size: 0.65rem;
+            }
+        }
+
+        /* Extra small devices */
+        @media (max-width: 360px) {
+            .signup-card {
+                padding: 16px 12px 18px;
+            }
+            .card-header h2 {
+                font-size: 1.2rem;
+            }
+            .card-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+            .form-group {
+                margin-bottom: 10px;
+            }
+            input {
+                padding: 7px 10px;
+                font-size: 0.72rem;
+            }
+            .otp-section {
+                padding: 8px;
+            }
+            .send-otp-btn, .verify-otp-btn {
+                padding: 7px 10px;
+                font-size: 0.68rem;
+            }
+            .submit-btn {
+                padding: 8px;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Landscape mode on mobile */
+        @media (max-height: 550px) and (orientation: landscape) {
+            .page-wrap {
+                padding: 12px 16px;
+            }
+            .signup-card {
+                padding: 16px 24px;
+            }
+            .card-header {
+                margin-bottom: 12px;
+            }
+            .card-icon {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+                margin-bottom: 6px;
+            }
+            .card-header h2 {
+                font-size: 1.2rem;
+            }
+            .form-group {
+                margin-bottom: 8px;
+            }
+            .otp-section {
+                margin-bottom: 12px;
+                padding: 8px;
+            }
+            .otp-group {
+                flex-direction: row;
+            }
+            .send-otp-btn, .verify-otp-btn {
+                width: auto;
+                padding: 6px 12px;
+            }
+            .submit-btn {
+                margin-top: 4px;
+                padding: 8px;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (hover: none) and (pointer: coarse) {
+            button, .send-otp-btn, .verify-otp-btn, .submit-btn {
+                cursor: default;
+            }
+            button:active, .send-otp-btn:active, .verify-otp-btn:active, .submit-btn:active {
+                transform: scale(0.98);
+            }
+        }
+    </style>
+</head>
+<body id="mainBody">
+
+<div class="top-bar">
+    <a href="/" class="logo-link">
+        <div class="logo-icon"><i class="fas fa-book-open"></i></div>
+        <span class="logo-text">Mun<span>shi</span></span>
+    </a>
+    <div class="lang-bar">
+        <button id="enBtn" class="active" onclick="setLang('en')">EN</button>
+        <button id="urBtn" onclick="setLang('ur')">اردو</button>
+    </div>
+</div>
+
+<div class="page-wrap">
+    <div class="signup-card">
+        <div class="card-header">
+            <div class="card-icon"><i class="fas fa-user-plus"></i></div>
+            <h2 id="cardTitle">Create Account</h2>
+            <p id="cardSubtitle">Join Munshi and manage your ledger digitally</p>
+        </div>
+
+        <!-- Display Django Messages -->
+        {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" novalidate id="signupForm">
+            {% csrf_token %}
+
+            <!-- Username -->
+            <div class="form-group">
+                <label for="id_username" id="labelUsername">Username</label>
+                <input type="text" name="username" id="id_username" class="form-control {% if form.username.errors %}field-error{% endif %}"
+                       value="{{ form.username.value|default:'' }}" placeholder="Enter username" required>
+                <small class="form-text" id="helpUsername">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</small>
+                {% if form.username.errors %}
+                <div class="error-message"><i class="fas fa-exclamation-circle"></i> {{ form.username.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Email (OTP will be sent to this email) -->
+            <div class="form-group">
+                <label for="id_email" id="labelEmail">Email address</label>
+                <input type="email" name="email" id="id_email" class="form-control {% if form.email.errors %}field-error{% endif %}"
+                       value="{{ form.email.value|default:'' }}" placeholder="Enter email" required>
+                <small class="form-text" id="helpEmail">We'll send a verification code to this email.</small>
+                {% if form.email.errors %}
+                <div class="error-message"><i class="fas fa-exclamation-circle"></i> {{ form.email.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <!-- OTP Section -->
+            <div class="otp-section">
+                <div class="otp-title">
+                    <i class="fas fa-shield-alt"></i>
+                    <span id="otpTitle">Email Verification</span>
+                </div>
+                <div class="otp-group">
+                    <input type="number" id="otpCode" name="otp_code" placeholder="Enter OTP" disabled>
+                    <button type="button" id="sendOtpBtn" class="send-otp-btn" onclick="sendOTP()">
+                        <i class="fas fa-paper-plane"></i> <span id="sendOtpText">Send OTP</span>
+                    </button>
+                    <button type="button" id="verifyOtpBtn" class="verify-otp-btn" onclick="verifyOTP()" style="display: none;">
+                        <i class="fas fa-check"></i> <span id="verifyOtpText">Verify</span>
+                    </button>
+                </div>
+                <div id="otpStatus" class="otp-status" style="display: none;"></div>
+                <input type="hidden" id="otpVerified" name="otp_verified" value="false">
+            </div>
+
+            <!-- Password Fields (disabled until OTP verified) -->
+            <div id="passwordFields" style="opacity: 0.5; pointer-events: none;">
+                <div class="form-group">
+                    <label for="id_password1" id="labelPassword1">Password</label>
+                    <input type="password" name="password1" id="id_password1" class="form-control" placeholder="Enter password" disabled>
+                    <small class="form-text" id="helpPassword1">Your password must contain at least 8 characters and cannot be entirely numeric.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password2" id="labelPassword2">Confirm Password</label>
+                    <input type="password" name="password2" id="id_password2" class="form-control" placeholder="Confirm password" disabled>
+                    <small class="form-text" id="helpPassword2">Enter the same password as before, for verification.</small>
+                </div>
+            </div>
+
+            <!-- Non-field errors -->
+            {% if form.non_field_errors %}
+            <div class="error-message" style="margin-bottom: 15px;">
+                {% for error in form.non_field_errors %}
+                    <i class="fas fa-exclamation-circle"></i> {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <button type="submit" id="submitBtn" class="submit-btn" disabled>
+                <i class="fas fa-arrow-right"></i>
+                <span id="submitText">Sign Up</span>
+            </button>
+        </form>
+
+        <div class="divider"><span id="dividerText">or</span></div>
+        <div class="card-footer">
+            <p><span id="loginText">Already have an account?</span> <a href="{% url 'login' %}" id="loginLink">Login</a></p>
+        </div>
+    </div>
+</div>
+
+<div class="page-footer">
+    &copy; 2026 Munshi — Commission Agent System
+</div>
+
+<script>
+    let otpSent = false;
+    let otpVerifiedFlag = false;
+    let timerInterval = null;
+    let secondsLeft = 0;
+
+    // Language Strings
+    var strings = {
+        en: {
+            cardTitle: 'Create Account',
+            cardSubtitle: 'Join Munshi and manage your ledger digitally',
+            submitText: 'Sign Up',
+            dividerText: 'or',
+            loginText: 'Already have an account?',
+            loginLink: 'Login',
+            labelUsername: 'Username',
+            labelEmail: 'Email address',
+            labelPassword1: 'Password',
+            labelPassword2: 'Confirm Password',
+            helpUsername: 'Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.',
+            helpEmail: 'We\'ll send a verification code to this email.',
+            helpPassword1: 'Your password must contain at least 8 characters and cannot be entirely numeric.',
+            helpPassword2: 'Enter the same password as before, for verification.',
+            placeholderUsername: 'Enter username',
+            placeholderEmail: 'Enter email',
+            placeholderPassword1: 'Enter password',
+            placeholderPassword2: 'Confirm password',
+            otpTitle: 'Email Verification',
+            sendOtpText: 'Send OTP',
+            verifyOtpText: 'Verify',
+            sending: 'Sending...',
+            verifying: 'Verifying...',
+            otpSentSuccess: '✓ OTP sent to your email! Please check your inbox.',
+            otpSentError: '✗ Failed to send OTP. Please check your email address.',
+            otpVerifiedSuccess: '✓ Email verified successfully! You can now set your password.',
+            otpVerifiedError: '✗ Invalid OTP. Please try again.',
+            otpResendWait: 'Wait {{seconds}}s to resend',
+            pleaseVerifyEmail: 'Please verify your email first.'
+        },
+        ur: {
+            cardTitle: 'اکاؤنٹ بنائیں',
+            cardSubtitle: 'منشی میں شامل ہوں اور اپنا حساب کتاب ڈیجیٹل طریقے سے سنبھالیں',
+            submitText: 'سائن اپ کریں',
+            dividerText: 'یا',
+            loginText: 'پہلے سے اکاؤنٹ ہے؟',
+            loginLink: 'لاگ ان کریں',
+            labelUsername: 'صارف کا نام',
+            labelEmail: 'ای میل ایڈریس',
+            labelPassword1: 'پاس ورڈ',
+            labelPassword2: 'پاس ورڈ کی تصدیق کریں',
+            helpUsername: 'ضروری۔ زیادہ سے زیادہ 150 حروف۔ صرف حروف، اعداد اور @/./+/-/_ استعمال ہو سکتے ہیں۔',
+            helpEmail: 'ہم تصدیقی کوڈ اس ای میل پر بھیجیں گے۔',
+            helpPassword1: 'آپ کا پاس ورڈ کم از کم 8 حروف پر مشتمل ہونا چاہیے اور مکمل طور پر عددی نہیں ہو سکتا۔',
+            helpPassword2: 'تصدیق کے لیے وہی پاس ورڈ دوبارہ درج کریں۔',
+            placeholderUsername: 'صارف کا نام درج کریں',
+            placeholderEmail: 'ای میل درج کریں',
+            placeholderPassword1: 'پاس ورڈ درج کریں',
+            placeholderPassword2: 'پاس ورڈ کی تصدیق کریں',
+            otpTitle: 'ای میل تصدیق',
+            sendOtpText: 'او ٹی پی بھیجیں',
+            verifyOtpText: 'تصدیق کریں',
+            sending: 'بھیج رہے ہیں...',
+            verifying: 'تصدیق ہو رہی ہے...',
+            otpSentSuccess: '✓ او ٹی پی آپ کی ای میل پر بھیج دیا گیا ہے! براہ کرم اپنا ان باکس چیک کریں۔',
+            otpSentError: '✗ او ٹی پی بھیجنے میں ناکامی۔ براہ کرم اپنا ای میل ایڈریس چیک کریں۔',
+            otpVerifiedSuccess: '✓ ای میل کامیابی سے تصدیق ہو گئی! اب آپ پاس ورڈ سیٹ کر سکتے ہیں۔',
+            otpVerifiedError: '✗ غلط او ٹی پی۔ براہ کرم دوبارہ کوشش کریں۔',
+            otpResendWait: 'دوبارہ بھیجنے کے لیے {{seconds}} سیکنڈ انتظار کریں',
+            pleaseVerifyEmail: 'براہ کرم پہلے اپنی ای میل تصدیق کریں۔'
+        }
+    };
+
+    function setLang(lang) {
+        var body = document.getElementById('mainBody');
+        var html = document.getElementById('htmlRoot');
+        var c = strings[lang];
+
+        if (lang === 'ur') {
+            body.classList.add('urdu-mode');
+            html.setAttribute('dir', 'rtl');
+            html.setAttribute('lang', 'ur');
+            document.getElementById('enBtn').classList.remove('active');
+            document.getElementById('urBtn').classList.add('active');
+        } else {
+            body.classList.remove('urdu-mode');
+            html.setAttribute('dir', 'ltr');
+            html.setAttribute('lang', 'en');
+            document.getElementById('enBtn').classList.add('active');
+            document.getElementById('urBtn').classList.remove('active');
+        }
+
+        document.getElementById('cardTitle').textContent = c.cardTitle;
+        document.getElementById('cardSubtitle').textContent = c.cardSubtitle;
+        document.getElementById('submitText').textContent = c.submitText;
+        document.getElementById('dividerText').textContent = c.dividerText;
+        document.getElementById('loginText').textContent = c.loginText;
+        document.getElementById('loginLink').textContent = c.loginLink;
+        document.getElementById('labelUsername').textContent = c.labelUsername;
+        document.getElementById('labelEmail').textContent = c.labelEmail;
+        document.getElementById('labelPassword1').textContent = c.labelPassword1;
+        document.getElementById('labelPassword2').textContent = c.labelPassword2;
+        document.getElementById('helpUsername').textContent = c.helpUsername;
+        document.getElementById('helpEmail').textContent = c.helpEmail;
+        document.getElementById('helpPassword1').textContent = c.helpPassword1;
+        document.getElementById('helpPassword2').textContent = c.helpPassword2;
+        document.getElementById('otpTitle').innerHTML = '<i class="fas fa-shield-alt"></i> ' + c.otpTitle;
+        document.getElementById('sendOtpText').textContent = c.sendOtpText;
+        document.getElementById('verifyOtpText').textContent = c.verifyOtpText;
+
+        var usernameInput = document.getElementById('id_username');
+        var emailInput = document.getElementById('id_email');
+        if (usernameInput) usernameInput.placeholder = c.placeholderUsername;
+        if (emailInput) emailInput.placeholder = c.placeholderEmail;
+
+        localStorage.setItem('munshi_lang', lang);
+    }
+
+    function startTimer(seconds) {
+        if (timerInterval) clearInterval(timerInterval);
+        secondsLeft = seconds;
+        const sendBtn = document.getElementById('sendOtpBtn');
+
+        timerInterval = setInterval(() => {
+            if (secondsLeft <= 0) {
+                clearInterval(timerInterval);
+                sendBtn.disabled = false;
+                const currentLang = document.body.classList.contains('urdu-mode') ? 'ur' : 'en';
+                sendBtn.innerHTML = `<i class="fas fa-paper-plane"></i> ${strings[currentLang].sendOtpText}`;
+            } else {
+                sendBtn.disabled = true;
+                const currentLang = document.body.classList.contains('urdu-mode') ? 'ur' : 'en';
+                let waitText = strings[currentLang].otpResendWait.replace('{{seconds}}', secondsLeft);
+                sendBtn.innerHTML = `<i class="fas fa-clock"></i> ${waitText}`;
+                secondsLeft--;
+            }
+        }, 1000);
+    }
+
+    function sendOTP() {
+        const email = document.getElementById('id_email').value;
+        if (!email) {
+            const currentLang = document.body.classList.contains('urdu-mode') ? 'ur' : 'en';
+            alert(strings[currentLang].pleaseVerifyEmail);
+            return;
+        }
+
+        const sendBtn = document.getElementById('sendOtpBtn');
+        const currentLang = document.body.classList.contains('urdu-mode') ? 'ur' : 'en';
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${strings[currentLang].sending}`;
+
+        fetch('/send-otp/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ email: email })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                otpSent = true;
+                document.getElementById('otpCode').disabled = false;
+                document.getElementById('verifyOtpBtn').style.display = 'flex';
+                const statusDiv = document.getElementById('otpStatus');
+                statusDiv.style.display = 'flex';
+                statusDiv.className = 'otp-status success';
+                statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${strings[currentLang].otpSentSuccess}`;
+                startTimer(60);
+                setTimeout(() => {
+                    if (statusDiv) statusDiv.style.display = 'none';
+                }, 5000);
+            } else {
+                sendBtn.disabled = false;
+                const statusDiv = document.getElementById('otpStatus');
+                statusDiv.style.display = 'flex';
+                statusDiv.className = 'otp-status error';
+                statusDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${data.error || strings[currentLang].otpSentError}`;
+                sendBtn.innerHTML = `<i class="fas fa-paper-plane"></i> ${strings[currentLang].sendOtpText}`;
+                setTimeout(() => {
+                    if (statusDiv) statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        })
+        .catch(error => {
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = `<i class="fas fa-paper-plane"></i> ${strings[currentLang].sendOtpText}`;
+            const statusDiv = document.getElementById('otpStatus');
+            statusDiv.style.display = 'flex';
+            statusDiv.className = 'otp-status error';
+            statusDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${strings[currentLang].otpSentError}`;
+            setTimeout(() => {
+                if (statusDiv) statusDiv.style.display = 'none';
+            }, 5000);
+        });
+    }
+
+    function verifyOTP() {
+        const otpCode = document.getElementById('otpCode').value;
+        const email = document.getElementById('id_email').value;
+
+        if (!otpCode || otpCode.toString().length !== 6) {
+            const currentLang = document.body.classList.contains('urdu-mode') ? 'ur' : 'en';
+            alert('Please enter a valid 6-digit OTP');
+            return;
+        }
+
+        const verifyBtn = document.getElementById('verifyOtpBtn');
+        const currentLang = document.body.classList.contains('urdu-mode') ? 'ur' : 'en';
+        verifyBtn.disabled = true;
+        verifyBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${strings[currentLang].verifying}`;
+
+        fetch('/verify-otp/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ email: email, otp: otpCode })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                otpVerifiedFlag = true;
+                document.getElementById('otpVerified').value = 'true';
+                document.getElementById('otpCode').disabled = true;
+                verifyBtn.style.display = 'none';
+
+                // Enable password fields
+                const passwordFields = document.getElementById('passwordFields');
+                passwordFields.style.opacity = '1';
+                passwordFields.style.pointerEvents = 'auto';
+                document.getElementById('id_password1').disabled = false;
+                document.getElementById('id_password2').disabled = false;
+                document.getElementById('submitBtn').disabled = false;
+
+                const statusDiv = document.getElementById('otpStatus');
+                statusDiv.style.display = 'flex';
+                statusDiv.className = 'otp-status success';
+                statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${strings[currentLang].otpVerifiedSuccess}`;
+            } else {
+                verifyBtn.disabled = false;
+                verifyBtn.innerHTML = `<i class="fas fa-check"></i> ${strings[currentLang].verifyOtpText}`;
+                const statusDiv = document.getElementById('otpStatus');
+                statusDiv.style.display = 'flex';
+                statusDiv.className = 'otp-status error';
+                statusDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${data.error || strings[currentLang].otpVerifiedError}`;
+                setTimeout(() => {
+                    if (statusDiv) statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        })
+        .catch(error => {
+            verifyBtn.disabled = false;
+            verifyBtn.innerHTML = `<i class="fas fa-check"></i> ${strings[currentLang].verifyOtpText}`;
+            const statusDiv = document.getElementById('otpStatus');
+            statusDiv.style.display = 'flex';
+            statusDiv.className = 'otp-status error';
+            statusDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${strings[currentLang].otpVerifiedError}`;
+            setTimeout(() => {
+                if (statusDiv) statusDiv.style.display = 'none';
+            }, 5000);
+        });
+    }
+
+    // Initialize
+    var saved = localStorage.getItem('munshi_lang') || 'en';
+    setLang(saved === 'ur' ? 'ur' : 'en');
+
+    // Form submit validation
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+        if (!otpVerifiedFlag) {
+            e.preventDefault();
+            const currentLang = document.body.classList.contains('urdu-mode') ? 'ur' : 'en';
+            alert(strings[currentLang].pleaseVerifyEmail);
+        }
+    });
+</script>
+
+</body>
+</html>

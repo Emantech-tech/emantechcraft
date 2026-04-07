@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>تعارف — عمان فرحت ٹیکنالوجیز</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Nastaliq Urdu', 'DM Sans', sans-serif;
+            background: #f5f3ef;
+            min-height: 100vh;
+            display: block;
+            direction: rtl;
+            overflow-x: hidden;
+            overflow-y: auto;
+            padding: 40px 20px;
+        }
+
+        .intro-slip-overlay {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            background: #f5f3ef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            animation: fadeIn 0.4s ease;
+            padding: 20px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .intro-slip {
+            width: 650px;
+            max-width: 100%;
+            background: linear-gradient(135deg, #ffffff, #fef9e8);
+            border-radius: 32px;
+            overflow: visible;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.5s ease;
+            position: relative;
+            margin: 20px auto;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slip-header {
+            background: linear-gradient(135deg, #c9a84c, #b85c38);
+            padding: 24px 28px;
+            text-align: center;
+            position: relative;
+            border-radius: 32px 32px 0 0;
+        }
+
+        .logo-icon {
+            width: 70px;
+            height: 70px;
+            background: white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo-icon i {
+            font-size: 32px;
+            color: #b85c38;
+        }
+
+        .slip-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .slip-header p {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .close-slip {
+            position: absolute;
+            top: 16px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: white;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .close-slip:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .slip-body {
+            padding: 32px;
+        }
+
+        .brand-info {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .brand-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #0f0e0d;
+        }
+
+        .brand-name span {
+            color: #c9a84c;
+        }
+
+        .brand-tagline {
+            font-size: 0.85rem;
+            color: #7a7067;
+            margin-top: 4px;
+        }
+
+        .lang-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .lang-btn {
+            padding: 6px 20px;
+            border: 1.5px solid #e8e4dd;
+            background: white;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .lang-btn:active {
+            transform: scale(0.96);
+        }
+
+        .lang-btn.active {
+            background: #c9a84c;
+            border-color: #c9a84c;
+            color: white;
+        }
+
+        .intro-display {
+            background: #f8f6f2;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #e8e4dd;
+            max-height: 320px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .intro-text {
+            font-size: 0.95rem;
+            line-height: 2;
+            color: #2c3e2f;
+            text-align: right;
+            font-family: 'Noto Nastaliq Urdu', serif;
+        }
+
+        .intro-text.en {
+            font-family: 'DM Sans', sans-serif;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .progress-container {
+            margin-bottom: 24px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e8e4dd;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #c9a84c, #b85c38);
+            transition: width 0.1s linear;
+        }
+
+        .audio-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .audio-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-family: 'Noto Nastaliq Urdu', serif;
+        }
+
+        .audio-play {
+            background: #c9a84c;
+            color: white;
+        }
+
+        .audio-play:active {
+            transform: scale(0.97);
+            background: #b85c38;
+        }
+
+        .audio-stop {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .audio-stop:active {
+            transform: scale(0.97);
+            background: #dee2e6;
+        }
+
+        .skip-btn {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 1.5px solid #e8e4dd;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #7a7067;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: 'Noto Nastaliq Urdu', serif;
+        }
+
+        .skip-btn:active {
+            transform: scale(0.98);
+            border-color: #c9a84c;
+            color: #c9a84c;
+        }
+
+        /* ============================================ */
+        /* ENHANCED RESPONSIVE STYLES - MOBILE OPTIMIZED */
+        /* ============================================ */
+
+        /* Tablet adjustments (768px - 1024px) */
+        @media (max-width: 768px) {
+            body {
+                padding: 30px 16px;
+            }
+            .slip-body {
+                padding: 28px;
+            }
+            .brand-name {
+                font-size: 1.6rem;
+            }
+            .logo-icon {
+                width: 60px;
+                height: 60px;
+            }
+            .logo-icon i {
+                font-size: 28px;
+            }
+            .slip-header h2 {
+                font-size: 1.4rem;
+            }
+            .intro-text {
+                font-size: 0.9rem;
+                line-height: 1.9;
+            }
+            .audio-btn {
+                padding: 11px;
+            }
+        }
+
+        /* Mobile adjustments (up to 640px) */
+        @media (max-width: 640px) {
+            body {
+                padding: 16px 12px;
+            }
+            .intro-slip-overlay {
+                padding: 12px;
+            }
+            .slip-body {
+                padding: 20px;
+            }
+            .brand-name {
+                font-size: 1.4rem;
+            }
+            .brand-tagline {
+                font-size: 0.75rem;
+            }
+            .intro-text {
+                font-size: 0.82rem;
+                line-height: 1.85;
+            }
+            .audio-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .audio-btn {
+                padding: 12px;
+                font-size: 0.9rem;
+                min-height: 48px;
+            }
+            .skip-btn {
+                padding: 12px;
+                font-size: 0.9rem;
+                min-height: 48px;
+            }
+            .intro-slip {
+                margin: 8px auto;
+                border-radius: 28px;
+            }
+            .slip-header {
+                padding: 18px 20px;
+                border-radius: 28px 28px 0 0;
+            }
+            .close-slip {
+                top: 12px;
+                left: 16px;
+                width: 34px;
+                height: 34px;
+                font-size: 1rem;
+            }
+            .lang-toggle {
+                gap: 12px;
+                margin-bottom: 18px;
+            }
+            .lang-btn {
+                padding: 8px 18px;
+                font-size: 0.8rem;
+                min-height: 40px;
+            }
+            .intro-display {
+                padding: 18px;
+                margin-bottom: 20px;
+                max-height: 300px;
+            }
+            .progress-container {
+                margin-bottom: 20px;
+            }
+            .logo-icon {
+                width: 55px;
+                height: 55px;
+                margin-bottom: 12px;
+            }
+            .logo-icon i {
+                font-size: 26px;
+            }
+            .slip-header h2 {
+                font-size: 1.3rem;
+            }
+            .slip-header p {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Small mobile devices (up to 480px) */
+        @media (max-width: 480px) {
+            body {
+                padding: 12px 10px;
+            }
+            .intro-slip-overlay {
+                padding: 8px;
+            }
+            .slip-body {
+                padding: 16px;
+            }
+            .brand-name {
+                font-size: 1.25rem;
+            }
+            .brand-tagline {
+                font-size: 0.7rem;
+            }
+            .intro-text {
+                font-size: 0.78rem;
+                line-height: 1.75;
+            }
+            .intro-display {
+                padding: 14px;
+                max-height: 280px;
+            }
+            .audio-btn {
+                padding: 10px;
+                font-size: 0.85rem;
+                min-height: 44px;
+            }
+            .skip-btn {
+                padding: 10px;
+                font-size: 0.85rem;
+                min-height: 44px;
+            }
+            .lang-btn {
+                padding: 6px 14px;
+                font-size: 0.75rem;
+                min-height: 36px;
+            }
+            .logo-icon {
+                width: 48px;
+                height: 48px;
+            }
+            .logo-icon i {
+                font-size: 22px;
+            }
+            .slip-header h2 {
+                font-size: 1.15rem;
+            }
+            .slip-header p {
+                font-size: 0.75rem;
+            }
+            .close-slip {
+                top: 10px;
+                left: 12px;
+                width: 30px;
+                height: 30px;
+                font-size: 0.85rem;
+            }
+            .lang-toggle {
+                gap: 10px;
+                margin-bottom: 16px;
+            }
+            .progress-container {
+                margin-bottom: 16px;
+            }
+        }
+
+        /* Extra small devices (up to 380px) */
+        @media (max-width: 380px) {
+            .slip-body {
+                padding: 14px;
+            }
+            .brand-name {
+                font-size: 1.15rem;
+            }
+            .intro-text {
+                font-size: 0.74rem;
+                line-height: 1.7;
+            }
+            .intro-display {
+                padding: 12px;
+                max-height: 260px;
+            }
+            .audio-btn, .skip-btn {
+                padding: 8px;
+                font-size: 0.8rem;
+            }
+            .lang-btn {
+                padding: 5px 12px;
+                font-size: 0.7rem;
+            }
+            .logo-icon {
+                width: 44px;
+                height: 44px;
+            }
+            .logo-icon i {
+                font-size: 20px;
+            }
+            .slip-header h2 {
+                font-size: 1rem;
+            }
+        }
+
+        /* Custom scrollbar styling */
+        .intro-display::-webkit-scrollbar {
+            width: 4px;
+        }
+        .intro-display::-webkit-scrollbar-track {
+            background: #e8e4dd;
+            border-radius: 10px;
+        }
+        .intro-display::-webkit-scrollbar-thumb {
+            background: #c9a84c;
+            border-radius: 10px;
+        }
+
+        /* Touch-friendly improvements */
+        @media (hover: none) and (pointer: coarse) {
+            button, .lang-btn, .audio-btn, .skip-btn, .close-slip {
+                cursor: default;
+                -webkit-tap-highlight-color: transparent;
+            }
+            .close-slip:hover {
+                background: rgba(255, 255, 255, 0.2);
+                transform: none;
+            }
+            .audio-play:hover {
+                background: #c9a84c;
+                transform: none;
+            }
+            .skip-btn:hover {
+                border-color: #e8e4dd;
+                color: #7a7067;
+            }
+        }
+
+        /* Smooth transitions for all interactive elements */
+        button, .lang-btn, .audio-btn, .skip-btn, .close-slip {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body>
+
+<div class="intro-slip-overlay" id="introSlip">
+    <div class="intro-slip">
+        <div class="slip-header">
+            <button class="close-slip" id="closeSlipBtn" aria-label="بند کریں">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="logo-icon">
+                <i class="fas fa-book-open"></i>
+            </div>
+            <h2>خوش آمدید</h2>
+
+        </div>
+
+        <div class="slip-body">
+            <div class="brand-info">
+                <div class="brand-name">Eman <span>TechCraft</span></div>
+                <div class="brand-tagline" id="brandTagline">جدت | اعتماد | عمدگی</div>
+            </div>
+
+            <div class="lang-toggle">
+                <button class="lang-btn active" id="urduLangBtn">اردو</button>
+                <button class="lang-btn" id="englishLangBtn">English</button>
+            </div>
+
+            <div class="intro-display">
+                <div class="intro-text" id="introText"></div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="audio-controls">
+                <button class="audio-btn audio-play" id="playAudioBtn">
+                    <i class="fas fa-play"></i> <span id="playText">تعریف سنیں</span>
+                </button>
+                <button class="audio-btn audio-stop" id="stopAudioBtn">
+                    <i class="fas fa-stop"></i> <span id="stopText">روکیں</span>
+                </button>
+            </div>
+
+            <button class="skip-btn" id="skipBtn">
+                <i class="fas fa-forward"></i> <span id="skipText">منشی پر جائیں</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const content = {
+        ur: {
+            tagline: 'جدت | اعتماد | عمدگی',
+            playText: 'تعریف سنیں',
+            stopText: 'روکیں',
+            skipText: 'منشی پر جائیں',
+            text: `میرا نام ایمان فرحت ہے۔ میں ایک **سافٹ ویئر انجینئر** ہوں اور **"ایمان ٹیک کرافٹ"** میرے برانڈ کا نام ہے۔ میں **ویب ڈیولپر** اور **اے آئی انجینئر** کے طور پر کام کر رہی ہوں، اور اس وقت بطور ایک **انفرادی (سولو) پروفیشنل** اپنی سروسز فراہم کر رہی ہوں۔
+
+میں نے **"منشی سسٹم"** خود اپنے آئیڈیا اور پلان کے تحت تیار کیا ہے، جس کا مقصد **کمیشن ایجنٹس** اور **چھوٹے کاروباری افراد** کی آسانی اور مدد کرنا ہے۔
+
+یہ نظام ان کے کاروبار کو ڈیجیٹل بنانے، ادھار اور جمع کا حساب رکھنے، اور کاروبار کو بہتر طریقے سے منظم کرنے میں مدد دے گا۔
+
+میرا مقصد ہے کہ ٹیکنالوجی کو عام لوگوں تک پہنچایا جائے — خاص طور پر ان تاجروں اور ایجنٹس تک جو روایتی طریقوں سے کام کر رہے ہیں۔
+
+شکریہ کہ آپ نے میری ٹیم کو منتخب کیا! 💫`
+        },
+        en: {
+            tagline: 'Innovation | Trust | Excellence',
+            playText: 'Play Intro',
+            stopText: 'Stop',
+            skipText: 'Go to Munshi',
+            text: `My name is Eman Farhat. I am a **Software Engineer**, and **"Eman Tech Craft"** is the name of my brand. I work as a **Web Developer** and **AI Engineer**, and currently, I am providing my services as an **independent (solo) professional**.
+
+I developed the **"Munshi System"** based on my own idea and planning, with the aim of helping **commission agents** and **small business owners**.
+
+This system will help digitize their businesses, manage credit and debit records, and organize their operations more efficiently.
+
+My goal is to bring technology to the general public — especially traders and agents who are still working with traditional methods.
+
+Thank you for choosing my team! 💫`
+        }
+    };
+
+    let currentLang = 'ur';
+    let audio = null;
+    let progressInterval = null;
+
+    const introSlipOverlay = document.getElementById('introSlip');
+    const closeBtn = document.getElementById('closeSlipBtn');
+    const urduBtn = document.getElementById('urduLangBtn');
+    const englishBtn = document.getElementById('englishLangBtn');
+    const playAudioBtn = document.getElementById('playAudioBtn');
+    const stopAudioBtn = document.getElementById('stopAudioBtn');
+    const skipBtn = document.getElementById('skipBtn');
+    const progressFill = document.getElementById('progressFill');
+    const brandTaglineSpan = document.getElementById('brandTagline');
+    const playTextSpan = document.getElementById('playText');
+    const stopTextSpan = document.getElementById('stopText');
+    const skipTextSpan = document.getElementById('skipText');
+    const introTextDiv = document.getElementById('introText');
+
+    function setLanguage(lang) {
+        currentLang = lang;
+        const c = content[lang];
+
+        brandTaglineSpan.textContent = c.tagline;
+        playTextSpan.textContent = c.playText;
+        stopTextSpan.textContent = c.stopText;
+        skipTextSpan.textContent = c.skipText;
+
+        let formattedText = c.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        formattedText = formattedText.replace(/\n/g, '<br><br>');
+        introTextDiv.innerHTML = formattedText;
+
+        if (lang === 'en') {
+            introTextDiv.classList.add('en');
+            document.body.setAttribute('dir', 'ltr');
+            document.body.style.direction = 'ltr';
+        } else {
+            introTextDiv.classList.remove('en');
+            document.body.setAttribute('dir', 'rtl');
+            document.body.style.direction = 'rtl';
+        }
+
+        if (lang === 'ur') {
+            urduBtn.classList.add('active');
+            englishBtn.classList.remove('active');
+        } else {
+            englishBtn.classList.add('active');
+            urduBtn.classList.remove('active');
+        }
+
+        localStorage.setItem('intro_lang', lang);
+    }
+
+    function stopAudio() {
+        if (audio) {
+            audio.pause();
+            audio.currentTime = 0;
+        }
+        if (progressInterval) {
+            clearInterval(progressInterval);
+            progressInterval = null;
+        }
+        progressFill.style.width = '0%';
+    }
+
+    function startProgressTracking() {
+        if (progressInterval) clearInterval(progressInterval);
+        if (!audio) return;
+
+        progressInterval = setInterval(() => {
+            if (audio && !audio.paused && audio.duration && isFinite(audio.duration)) {
+                const percent = (audio.currentTime / audio.duration) * 100;
+                progressFill.style.width = percent + '%';
+                if (audio.currentTime >= audio.duration - 0.1) {
+                    if (progressInterval) clearInterval(progressInterval);
+                    setTimeout(() => {
+                        closeIntroAndRedirect();
+                    }, 200);
+                }
+            }
+        }, 100);
+    }
+
+    function playAudio() {
+        if (audio && !audio.paused) return;
+
+        if (audio && audio.paused && audio.currentTime > 0 && audio.currentTime < audio.duration) {
+            audio.play().catch(e => console.warn("Playback resume error:", e));
+            startProgressTracking();
+            return;
+        }
+
+        if (audio) {
+            audio.pause();
+            audio = null;
+        }
+
+        try {
+            audio = new Audio("{% static 'media/voice.mp3' %}");
+        } catch(e) {
+            console.error("Audio creation error:", e);
+            alert("آڈیو فائل کا راستہ درست نہیں ہے۔ براہ کرم یقینی بنائیں کہ voice.mp3 static/media/ فولڈر میں موجود ہے۔");
+            return;
+        }
+
+        audio.play().catch(error => {
+            console.warn("Playback failed:", error);
+            alert("آڈیو چلانے میں مسئلہ۔ فائل موجود نہیں؟ متوقع مقام: static/media/voice.mp3");
+        });
+
+        startProgressTracking();
+
+        audio.onended = function() {
+            if (progressInterval) clearInterval(progressInterval);
+            progressFill.style.width = '100%';
+            setTimeout(() => {
+                closeIntroAndRedirect();
+            }, 300);
+        };
+
+        audio.onerror = function(e) {
+            console.error("Audio error:", e);
+        };
+    }
+
+    function closeIntroAndRedirect() {
+        if (audio) {
+            audio.pause();
+            audio = null;
+        }
+        if (progressInterval) {
+            clearInterval(progressInterval);
+            progressInterval = null;
+        }
+
+        localStorage.setItem('intro_seen', 'true');
+
+        introSlipOverlay.style.transition = 'opacity 0.3s ease';
+        introSlipOverlay.style.opacity = '0';
+        setTimeout(() => {
+            window.location.href = "{% url 'landing' %}";
+        }, 250);
+    }
+
+    function bindEvents() {
+        closeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            closeIntroAndRedirect();
+        });
+
+        skipBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            closeIntroAndRedirect();
+        });
+
+        playAudioBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            playAudio();
+        });
+
+        stopAudioBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            stopAudio();
+        });
+
+        urduBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            setLanguage('ur');
+            stopAudio();
+        });
+
+        englishBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            setLanguage('en');
+            stopAudio();
+        });
+    }
+
+    document.body.style.overflow = 'auto';
+
+    const savedLang = localStorage.getItem('intro_lang');
+    if (savedLang && (savedLang === 'ur' || savedLang === 'en')) {
+        setLanguage(savedLang);
+    } else {
+        setLanguage('ur');
+    }
+
+    bindEvents();
+
+    setTimeout(() => {
+        if (!audio || (audio && audio.paused && audio.currentTime === 0)) {
+            playAudio();
+        }
+    }, 500);
+</script>
+
+</body>
+</html>

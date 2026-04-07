@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ party.name }} - کھاتہ دار کا بیان</title>
+
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 1.5cm;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Noto Nastaliq Urdu', 'Arial', sans-serif;
+            direction: rtl;
+            font-size: 8pt;
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #1a3a3a;
+            padding-bottom: 10px;
+        }
+
+        .company {
+            font-size: 16pt;
+            font-weight: bold;
+            color: #1a3a3a;
+        }
+
+        .shop-name {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #b85c38;
+            margin: 5px 0;
+            padding: 3px 10px;
+            display: inline-block;
+            border-bottom: 1px dashed #c9a84c;
+        }
+
+        .subtitle {
+            font-size: 9pt;
+            color: #666;
+        }
+
+        .statement-title {
+            font-size: 13pt;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .party-info {
+            text-align: center;
+            margin-bottom: 20px;
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .summary {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            flex: 1;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            background: #fafafa;
+            min-width: 120px;
+        }
+
+        .card-label {
+            font-size: 9pt;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .card-value {
+            font-size: 12pt;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .credit-text { color: #2563eb; }
+        .debit-text  { color: #dc2626; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 7pt;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 5px 3px;
+        }
+
+        th {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        td { text-align: center; }
+
+        /* نام (Debit) → سرخ */
+        .debit  { color: #dc2626; font-weight: bold; }
+
+        /* جمع (Credit) → نیلا */
+        .credit { color: #2563eb; font-weight: bold; }
+
+        /* روکڑ (Cash) → سبز */
+        .rokad  { color: #16a34a; font-weight: bold; }
+
+        /* کمیشن → نارنجی */
+        .commission { color: #f97316; font-weight: bold; }
+
+        /* بھرتی → جامنی */
+        .bharti { color: #8b5cf6; font-weight: bold; }
+
+        /* انت (Net Amount) → گہرا نیلا */
+        .ant { color: #0891b2; font-weight: bold; }
+
+        /* Balance */
+        .balance-pos { color: #2563eb; font-weight: bold; }
+        .balance-neg { color: #dc2626; font-weight: bold; }
+
+        tr:nth-child(even) td { background: #f9f9f9; }
+
+        .total-row td {
+            font-weight: bold;
+            background: #eaeaea;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 7pt;
+            color: #888;
+        }
+
+        @media print {
+            .summary {
+                break-inside: avoid;
+            }
+            table {
+                break-inside: auto;
+            }
+            tr {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="company">میران کراپ سائنسز</div>
+    {% if shop_name %}
+    <div class="shop-name">
+        🏪 {{ shop_name }}
+    </div>
+    {% endif %}
+    <div class="subtitle">کمیشن ایجنٹس مینجمنٹ سسٹم</div>
+</div>
+
+<div class="party-info">
+    <div class="statement-title">کھاتہ دار کا نام</div>
+    <div><strong>نام:</strong> {{ party.name }}</div>
+    {% if room_no %}<div><strong>روم نمبر:</strong> {{ room_no }}</div>{% endif %}
+    <div><strong>تاریخ:</strong> {% now "d-m-Y" %}</div>
+</div>
+
+<div class="summary">
+    <div class="card">
+        <div class="card-label">کل جمع</div>
+        <div class="card-value credit-text">Rs. {{ party.total_credit|floatformat:2 }}</div>
+    </div>
+    <div class="card">
+        <div class="card-label">کل نام</div>
+        <div class="card-value debit-text">Rs. {{ party.total_debit|floatformat:2 }}</div>
+    </div>
+    <div class="card">
+        <div class="card-label">خالص بیلنس</div>
+        <div class="card-value {% if party.balance >= 0 %}credit-text{% else %}debit-text{% endif %}">
+            Rs. {{ party.balance|floatformat:2 }}
+        </div>
+    </div>
+</div>
+
+<table>
+<thead>
+    <tr>
+        <th>تاریخ</th>
+        <th>تعداد</th>
+        <th>نام اشیاء</th>
+        <th>ریٹ</th>
+        <th>روکڑ</th>
+        <th>آنٹ(Net)</th>
+        <th>بھرتی (KG)</th>
+        <th>کمیشن</th>
+        <th>نام 🔴</th>
+        <th>جمع 🔵</th>
+        <th>بیلنس</th>
+    </tr>
+</thead>
+
+<tbody>
+{% for t in transactions %}
+<tr>
+    <!-- تاریخ -->
+    <td>{{ t.date|date:"d-m-Y" }}</td>
+
+    <!-- تعداد -->
+    <td>{% if t.qty %}{{ t.qty|floatformat:2 }}{% else %}-{% endif %}</td>
+
+    <!-- نام اشیاء -->
+    <td style="text-align: right;">{{ t.product_name|default:"-"|truncatechars:20 }}</td>
+
+    <!-- ریٹ -->
+    <td>{% if t.rate %}{{ t.rate|floatformat:2 }}{% else %}-{% endif %}</td>
+
+    <!-- کمیشن → نارنجی -->
+    <td class="commission">
+        {% if t.commission and t.commission > 0 %}{{ t.commission|floatformat:2 }}{% else %}-{% endif %}
+    </td>
+
+    <!-- بھرتی (KG) → جامنی -->
+    <td class="bharti">
+        {% if t.bharti and t.bharti > 0 %}{{ t.bharti|floatformat:3 }}{% else %}-{% endif %}
+    </td>
+
+    <!-- انت (Net Amount) → گہرا نیلا -->
+    <td class="ant">
+        {% if t.ant and t.ant > 0 %}{{ t.ant|floatformat:2 }}{% else %}-{% endif %}
+    </td>
+
+    <!-- روکڑ (Cash) → سبز -->
+    <td class="rokad">
+        {% if t.rokad and t.rokad > 0 %}{{ t.rokad|floatformat:2 }}{% else %}-{% endif %}
+    </td>
+
+    <!-- نام (Debit) → 🔴 سرخ -->
+    <td class="debit">
+        {% if t.debit > 0 %}{{ t.debit|floatformat:2 }}{% else %}-{% endif %}
+    </td>
+
+    <!-- جمع (Credit) → 🔵 نیلا -->
+    <td class="credit">
+        {% if t.credit > 0 %}{{ t.credit|floatformat:2 }}{% else %}-{% endif %}
+    </td>
+
+    <!-- بیلنس → رنگ حساب سے -->
+    <td class="{% if t.balance >= 0 %}balance-pos{% else %}balance-neg{% endif %}">
+        {% if t.balance > 0 %}
+            ({{ t.balance|floatformat:2 }})
+        {% elif t.balance < 0 %}
+            {{ t.balance|floatformat:2 }}
+        {% else %}
+            0.00
+        {% endif %}
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="11">کوئی ٹرانزیکشن نہیں ہے</td>
+</tr>
+{% endfor %}
+
+<!-- کل (Grand Total) -->
+<tr class="total-row">
+    <td colspan="6" style="text-align: right;"><strong>کل مجموعہ</strong></td>
+    <td class="ant"><strong>{{ total_ant|floatformat:2|default:"0.00" }}</strong></td>
+    <td class="rokad"><strong>{{ total_rokad|floatformat:2|default:"0.00" }}</strong></td>
+    <td class="debit"><strong>{{ party.total_debit|floatformat:2 }}</strong></td>
+    <td class="credit"><strong>{{ party.total_credit|floatformat:2 }}</strong></td>
+    <td class="{% if party.balance >= 0 %}balance-pos{% else %}balance-neg{% endif %}">
+        <strong>{{ party.balance|floatformat:2 }}</strong>
+    </td>
+</tr>
+
+</tbody>
+</table>
+
+<div class="footer">
+    تیار کردہ: {% now "d-m-Y h:i A" %}
+</div>
+
+</body>
+</html>

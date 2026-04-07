@@ -1,0 +1,882 @@
+<div id="summarySlip" class="summary-slip" style="display: none;">
+    <!-- Mobile Hint - Outside the slip -->
+    <div class="mobile-hint-outside" id="mobileHintOutside">
+        <div class="hint-bubble">
+            <i class="fas fa-hand-pointer"></i>
+            <span class="hint-text">👆 Tap anywhere on the dark area to zoom out</span>
+            <span class="hint-text-ur">👆 پوری سکرین کے لیے کہیں بھی ٹیپ کریں</span>
+        </div>
+        <div class="hint-arrow"></div>
+    </div>
+
+    <div class="slip-container" id="slipContainer">
+        <div class="slip-header">
+            <div class="slip-header-top">
+                <h3>منشی اکاؤنٹنگ</h3>
+                <button class="fullscreen-toggle" id="fullscreenToggle" onclick="toggleFullscreen()">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+            <p id="slipTitle">خلاصہ ٹرانزیکشن</p>
+        </div>
+
+        <div class="slip-body">
+            <div class="party-info">
+                <h4 id="slipPartyName">{{ party_name }}</h4>
+                <p id="slipGeneratedTime">تاریخ: {{ generated_at }}</p>
+            </div>
+
+            <div class="balance-summary">
+                <div class="summary-item">
+                    <span id="totalCreditLabel">کل جمع:</span>
+                    <strong>₨ <span id="totalCreditValue">{{ total_credit }}</span></strong>
+                </div>
+                <div class="summary-item">
+                    <span id="totalDebitLabel">کل نام:</span>
+                    <strong>₨ <span id="totalDebitValue">{{ total_debit }}</span></strong>
+                </div>
+                <div class="summary-item total">
+                    <span id="currentBalanceLabel">موجودہ بیلنس:</span>
+                    <strong class="{% if balance_direction == 'payable' %}payable{% elif balance_direction == 'receivable' %}receivable{% endif %}">
+                        ₨ <span id="balanceValue">{{ balance }}</span>
+                    </strong>
+                </div>
+                <div class="balance-status" id="balanceStatus">
+                    {{ balance_status }}
+                </div>
+            </div>
+
+            <div class="recent-transactions">
+                <h5 id="recentTransactionsLabel">حالیہ لین دین</h5>
+                <div class="transactions-table-wrapper">
+                    <table class="transactions-table">
+                        <thead>
+                            <tr>
+                                <th id="dateLabel">تاریخ</th>
+                                <th id="typeLabel">قسم</th>
+                                <th id="amountLabel">رقم</th>
+                                <th id="noteLabel">تفصیل</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsList">
+                            {% for trans in recent_transactions %}
+                            <tr>
+                                <td data-label="تاریخ">{{ trans.date }}</td>
+                                <td data-label="قسم" class="{% if trans.type == 'Debit' %}debit{% else %}credit{% endif %}">
+                                    {{ trans.type_ur }}
+                                </td>
+                                <td data-label="رقم">₨ {{ trans.amount }}</td>
+                                <td data-label="تفصیل">{{ trans.note|default:"—" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="slip-footer">
+            <p id="thankyouMessage">کاروبار کا شکریہ!</p>
+            <div class="signature">
+                <span id="authorizedSignature">مجاز دستخط</span>
+                <span id="customerSignature">گاہک کے دستخط</span>
+            </div>
+        </div>
+
+        <div class="slip-buttons">
+            <button onclick="printSlip()" class="print-btn">
+                <i class="fas fa-print"></i> <span id="printButtonText">پرنٹ کریں</span>
+            </button>
+            <button onclick="closeSlip()" class="close-btn">
+                <i class="fas fa-times"></i> <span id="closeButtonText">بند کریں</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Import Urdu Font */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap');
+
+.summary-slip {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100000;
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Mobile Hint - Outside the slip (on the dark area) */
+.mobile-hint-outside {
+    position: fixed;
+    bottom: 30%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100001;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    animation: bounceIn 0.5s ease;
+    pointer-events: none;
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) scale(0.8);
+    }
+    70% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1.05);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
+}
+
+.hint-bubble {
+    background: linear-gradient(135deg, #b85c38, #c9a84c);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    animation: pulse 1.5s ease infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); }
+    50% { transform: scale(1.05); box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4); }
+    100% { transform: scale(1); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); }
+}
+
+.hint-bubble i {
+    font-size: 1.2rem;
+}
+
+.hint-arrow {
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 15px solid #c9a84c;
+    margin-top: 5px;
+    animation: arrowBounce 1s ease infinite;
+}
+
+@keyframes arrowBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(5px); }
+}
+
+.hint-bubble .hint-text-ur {
+    display: none;
+}
+
+body.urdu-mode .hint-bubble .hint-text {
+    display: none;
+}
+
+body.urdu-mode .hint-bubble .hint-text-ur {
+    display: inline;
+}
+
+.slip-container {
+    background: white;
+    width: 600px;
+    max-width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease-out;
+    font-family: 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    direction: rtl;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 100000;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slip-header {
+    text-align: center;
+    border-bottom: 2px solid #e5e5e5;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.slip-header-top {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.slip-header h3 {
+    margin: 0;
+    color: #b85c38;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    font-family: 'Noto Nastaliq Urdu', serif;
+}
+
+.fullscreen-toggle {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.1);
+    border: none;
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    color: #b85c38;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    z-index: 10;
+}
+
+.fullscreen-toggle:hover {
+    background: rgba(184,92,56,0.2);
+}
+
+body.urdu-mode .fullscreen-toggle {
+    left: auto;
+    right: 0;
+}
+
+.slip-header p {
+    margin: 8px 0 0;
+    color: #666;
+    font-size: 0.9rem;
+    font-family: 'Noto Nastaliq Urdu', sans-serif;
+}
+
+.party-info {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.party-info h4 {
+    margin: 0 0 5px;
+    font-size: 1.3rem;
+    color: #333;
+    font-weight: 600;
+    font-family: 'Noto Nastaliq Urdu', serif;
+    word-break: break-word;
+}
+
+.party-info p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #999;
+    font-family: 'Noto Nastaliq Urdu', sans-serif;
+}
+
+.balance-summary {
+    background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f5 100%);
+    padding: 18px;
+    border-radius: 14px;
+    margin: 15px 0;
+    border: 1px solid #e9ecef;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #dee2e6;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.summary-item span:first-child {
+    color: #6c757d;
+    font-weight: 500;
+    font-size: 0.95rem;
+    font-family: 'Noto Nastaliq Urdu', sans-serif;
+}
+
+.summary-item strong {
+    color: #212529;
+    font-size: 1rem;
+    font-family: 'Noto Nastaliq Urdu', sans-serif;
+}
+
+.summary-item.total {
+    border-top: 2px solid #dee2e6;
+    border-bottom: none;
+    margin-top: 8px;
+    padding-top: 15px;
+}
+
+.summary-item.total strong {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.balance-status {
+    margin-top: 12px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 8px;
+    color: #b85c38;
+    font-family: 'Noto Nastaliq Urdu', sans-serif;
+    word-break: break-word;
+}
+
+.payable {
+    color: #dc3545 !important;
+}
+
+.receivable {
+    color: #28a745 !important;
+}
+
+.recent-transactions {
+    margin: 20px 0;
+}
+
+.recent-transactions h5 {
+    margin: 0 0 12px;
+    color: #495057;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: 'Noto Nastaliq Urdu', sans-serif;
+}
+
+.transactions-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.transactions-table {
+    width: 100%;
+    font-size: 0.85rem;
+    border-collapse: collapse;
+}
+
+.transactions-table th {
+    background: #f8f9fa;
+    padding: 10px 8px;
+    text-align: right;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+    font-family: 'Noto Nastaliq Urdu', sans-serif;
+}
+
+.transactions-table td {
+    padding: 8px;
+    text-align: right;
+    border-bottom: 1px solid #f0f0f0;
+    color: #666;
+    font-family: 'Noto Nastaliq Urdu', sans-serif;
+}
+
+.transactions-table tr:hover {
+    background: #faf9f8;
+}
+
+.transactions-table .debit {
+    color: #dc3545;
+    font-weight: 500;
+}
+
+.transactions-table .credit {
+    color: #28a745;
+    font-weight: 500;
+}
+
+.slip-footer {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 2px solid #e5e5e5;
+}
+
+.slip-footer p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+    font-family: 'Noto Nastaliq Urdu', sans-serif;
+}
+
+.signature {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding: 0 20px;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.signature span {
+    font-size: 0.8rem;
+    color: #999;
+    border-top: 1px dashed #ddd;
+    padding-top: 8px;
+    min-width: 120px;
+    text-align: center;
+    font-family: 'Noto Nastaliq Urdu', sans-serif;
+    flex: 1;
+}
+
+.slip-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.print-btn, .close-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+    font-family: 'Noto Nastaliq Urdu', sans-serif;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.print-btn {
+    background: #b85c38;
+    color: white;
+}
+
+.print-btn:hover {
+    background: #9a4a2e;
+    transform: translateY(-2px);
+}
+
+.close-btn {
+    background: #e9ecef;
+    color: #495057;
+}
+
+.close-btn:hover {
+    background: #dee2e6;
+    transform: translateY(-2px);
+}
+
+/* Scrollbar Styling */
+.slip-container::-webkit-scrollbar {
+    width: 5px;
+}
+
+.slip-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.slip-container::-webkit-scrollbar-thumb {
+    background: #b85c38;
+    border-radius: 10px;
+}
+
+/* ============================================
+   MOBILE RESPONSIVE - HINT OUTSIDE THE SLIP
+   ============================================ */
+
+/* Mobile devices */
+@media (max-width: 768px) {
+    .summary-slip {
+        align-items: flex-end;
+        justify-content: flex-end;
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.6);
+        cursor: pointer;
+    }
+
+    /* Show hint outside the slip */
+    .mobile-hint-outside {
+        display: flex;
+    }
+
+    .slip-container {
+        width: 320px;
+        max-width: 85%;
+        max-height: 70vh;
+        height: auto;
+        border-radius: 20px;
+        padding: 20px;
+        margin: 0;
+        animation: slideUp 0.3s ease-out;
+        position: relative;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Fullscreen mode for mobile */
+    .slip-container.fullscreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        max-width: 100%;
+        height: 100%;
+        max-height: 100%;
+        border-radius: 0;
+        padding: 20px;
+        margin: 0;
+        cursor: default;
+        z-index: 100001;
+    }
+
+    /* Hide hint in fullscreen mode */
+    .slip-container.fullscreen ~ .mobile-hint-outside {
+        display: none;
+    }
+
+    .fullscreen-toggle {
+        display: block;
+        cursor: pointer;
+    }
+
+    .slip-header h3 {
+        font-size: 1.3rem;
+    }
+
+    .slip-header p {
+        font-size: 0.75rem;
+    }
+
+    .party-info h4 {
+        font-size: 1.1rem;
+    }
+
+    .balance-summary {
+        padding: 12px;
+    }
+
+    .summary-item span:first-child {
+        font-size: 0.85rem;
+    }
+
+    .summary-item strong {
+        font-size: 0.9rem;
+    }
+
+    .balance-status {
+        font-size: 0.8rem;
+    }
+
+    .transactions-table th,
+    .transactions-table td {
+        padding: 6px 4px;
+        font-size: 0.75rem;
+    }
+
+    .signature {
+        padding: 0 10px;
+    }
+
+    .signature span {
+        font-size: 0.7rem;
+    }
+
+    .hint-bubble {
+        padding: 8px 18px;
+        font-size: 0.8rem;
+    }
+
+    .hint-bubble i {
+        font-size: 1rem;
+    }
+
+    .hint-arrow {
+        border-left: 12px solid transparent;
+        border-right: 12px solid transparent;
+        border-top: 12px solid #c9a84c;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 640px) {
+    .summary-slip {
+        padding: 15px;
+    }
+
+    .slip-container {
+        width: 280px;
+        max-width: 90%;
+        padding: 16px;
+    }
+
+    .slip-header h3 {
+        font-size: 1.2rem;
+    }
+
+    .party-info h4 {
+        font-size: 1rem;
+    }
+
+    .balance-summary {
+        padding: 10px;
+    }
+
+    .summary-item {
+        padding: 6px 0;
+    }
+
+    .summary-item span:first-child {
+        font-size: 0.8rem;
+    }
+
+    .summary-item strong {
+        font-size: 0.85rem;
+    }
+
+    .balance-status {
+        font-size: 0.75rem;
+    }
+
+    .recent-transactions h5 {
+        font-size: 0.85rem;
+    }
+
+    .transactions-table th,
+    .transactions-table td {
+        padding: 5px 3px;
+        font-size: 0.7rem;
+    }
+
+    .signature {
+        flex-direction: column;
+        gap: 10px;
+        padding: 0;
+    }
+
+    .signature span {
+        width: 100%;
+        min-width: auto;
+    }
+
+    .slip-buttons {
+        flex-direction: column;
+    }
+
+    .print-btn, .close-btn {
+        width: 100%;
+        min-width: auto;
+        padding: 8px;
+        font-size: 0.8rem;
+    }
+
+    .hint-bubble {
+        padding: 6px 14px;
+        font-size: 0.7rem;
+        white-space: nowrap;
+    }
+}
+
+/* Desktop - No hint */
+@media (min-width: 769px) {
+    .mobile-hint-outside {
+        display: none !important;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .summary-slip {
+        position: relative;
+        background: white;
+        backdrop-filter: none;
+        display: block !important;
+        padding: 0;
+    }
+
+    .print-btn, .close-btn, .slip-buttons, .fullscreen-toggle, .mobile-hint-outside {
+        display: none;
+    }
+
+    .slip-container {
+        box-shadow: none;
+        padding: 0;
+        max-height: none;
+        overflow: visible;
+        width: 100%;
+        max-width: 100%;
+        border-radius: 0;
+    }
+
+    .summary-item {
+        break-inside: avoid;
+    }
+
+    .transactions-table tr {
+        break-inside: avoid;
+    }
+}
+</style>
+
+<script>
+function printSlip() {
+    window.print();
+}
+
+function closeSlip() {
+    const slip = document.getElementById('summarySlip');
+    const container = document.getElementById('slipContainer');
+    slip.style.display = 'none';
+    container.classList.remove('fullscreen');
+    document.body.style.overflow = '';
+}
+
+function showSlip() {
+    const slip = document.getElementById('summarySlip');
+    const container = document.getElementById('slipContainer');
+    slip.style.display = 'flex';
+    container.classList.remove('fullscreen');
+    document.body.style.overflow = 'hidden';
+}
+
+function toggleFullscreen() {
+    const container = document.getElementById('slipContainer');
+    const toggleBtn = document.getElementById('fullscreenToggle');
+    const isFullscreen = container.classList.contains('fullscreen');
+
+    if (isFullscreen) {
+        container.classList.remove('fullscreen');
+        toggleBtn.innerHTML = '<i class="fas fa-expand"></i>';
+    } else {
+        container.classList.add('fullscreen');
+        toggleBtn.innerHTML = '<i class="fas fa-compress"></i>';
+    }
+}
+
+// Mobile: Click anywhere on dark area to fullscreen
+document.addEventListener('DOMContentLoaded', function() {
+    const slipOverlay = document.getElementById('summarySlip');
+    const container = document.getElementById('slipContainer');
+    const isMobile = window.innerWidth <= 768;
+
+    if (slipOverlay && isMobile) {
+        slipOverlay.addEventListener('click', function(e) {
+            // Don't trigger if clicking inside the slip container
+            if (!container.contains(e.target)) {
+                toggleFullscreen();
+            }
+        });
+    }
+
+    // Auto hide hint after 5 seconds
+    setTimeout(function() {
+        const hint = document.getElementById('mobileHintOutside');
+        if (hint) {
+            hint.style.opacity = '0';
+            hint.style.transition = 'opacity 0.5s ease';
+            setTimeout(function() {
+                if (hint) hint.style.display = 'none';
+            }, 500);
+        }
+    }, 6000);
+});
+
+// Language support function - Only Urdu
+function updateSlipLanguage(lang) {
+    const urduLabels = {
+        title: 'خلاصہ ٹرانزیکشن',
+        totalCredit: 'کل جمع:',
+        totalDebit: 'کل نام:',
+        currentBalance: 'موجودہ بیلنس:',
+        recentTransactions: 'حالیہ لین دین',
+        date: 'تاریخ',
+        type: 'قسم',
+        amount: 'رقم',
+        note: 'تفصیل',
+        thankYou: 'کاروبار کا شکریہ!',
+        authorized: 'مجاز دستخط',
+        customer: 'گاہک کے دستخط',
+        print: 'پرنٹ کریں',
+        close: 'بند کریں'
+    };
+
+    const elements = {
+        slipTitle: document.getElementById('slipTitle'),
+        totalCreditLabel: document.getElementById('totalCreditLabel'),
+        totalDebitLabel: document.getElementById('totalDebitLabel'),
+        currentBalanceLabel: document.getElementById('currentBalanceLabel'),
+        recentTransactionsLabel: document.getElementById('recentTransactionsLabel'),
+        dateLabel: document.getElementById('dateLabel'),
+        typeLabel: document.getElementById('typeLabel'),
+        amountLabel: document.getElementById('amountLabel'),
+        noteLabel: document.getElementById('noteLabel'),
+        thankyouMessage: document.getElementById('thankyouMessage'),
+        authorizedSignature: document.getElementById('authorizedSignature'),
+        customerSignature: document.getElementById('customerSignature'),
+        printButtonText: document.getElementById('printButtonText'),
+        closeButtonText: document.getElementById('closeButtonText')
+    };
+
+    for (const [key, element] of Object.entries(elements)) {
+        if (element) {
+            const urduKey = key === 'slipTitle' ? 'title' :
+                           key === 'thankyouMessage' ? 'thankYou' :
+                           key === 'authorizedSignature' ? 'authorized' :
+                           key === 'customerSignature' ? 'customer' :
+                           key === 'printButtonText' ? 'print' :
+                           key === 'closeButtonText' ? 'close' :
+                           key.replace(/Label$/, '');
+
+            if (urduLabels[urduKey]) {
+                element.textContent = urduLabels[urduKey];
+            }
+        }
+    }
+}
+
+// Set Urdu as default
+updateSlipLanguage('ur');
+
+// Escape key to close
+document.addEventListener('keydown', function(event) {
+    const slip = document.getElementById('summarySlip');
+    if (event.key === 'Escape' && slip && slip.style.display === 'flex') {
+        closeSlip();
+    }
+});
+</script>

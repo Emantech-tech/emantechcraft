@@ -1,0 +1,557 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+
+.edit-wrapper {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.edit-card {
+    width: 100%;
+    max-width: 550px;
+    background: var(--white);
+    border: 1px solid var(--mist);
+    border-radius: 24px;
+    padding: clamp(24px, 6vw, 36px) clamp(20px, 5vw, 32px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.edit-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.4rem, 5vw, 1.8rem);
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.edit-title i {
+    color: var(--gold);
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
+}
+
+.edit-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    border-left: 3px solid var(--gold);
+    padding-left: 12px;
+    line-height: 1.5;
+}
+
+body.urdu-mode .edit-subtitle {
+    border-left: none;
+    border-right: 3px solid var(--gold);
+    padding-left: 0;
+    padding-right: 12px;
+    text-align: right;
+}
+
+/* Form */
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.form-label i {
+    margin-right: 6px;
+    color: var(--gold);
+    width: 18px;
+}
+
+body.urdu-mode .form-label i {
+    margin-right: 0;
+    margin-left: 6px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 11px 14px;
+    border-radius: 12px;
+    border: 1.5px solid var(--mist);
+    font-size: 0.9rem;
+    outline: none;
+    transition: 0.25s;
+    background: var(--white);
+    font-family: inherit;
+}
+
+.form-input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+}
+
+.form-input::placeholder {
+    color: #bbb;
+    font-size: 0.85rem;
+}
+
+textarea.form-input {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.help-text {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 5px;
+    display: block;
+    line-height: 1.4;
+}
+
+body.urdu-mode .help-text {
+    text-align: right;
+}
+
+/* Buttons */
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+}
+
+.btn-save {
+    flex: 1;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    background: var(--gold);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.25s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+
+.btn-save:hover {
+    background: #b8963d;
+    transform: translateY(-2px);
+}
+
+.btn-cancel {
+    flex: 1;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1.5px solid var(--mist);
+    text-decoration: none;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    gap: 8px;
+    transition: 0.25s;
+    background: transparent;
+    font-size: 0.9rem;
+}
+
+.btn-cancel:hover {
+    border-color: var(--rust);
+    color: var(--rust);
+    background: rgba(184,92,56,0.08);
+    transform: translateY(-2px);
+}
+
+/* Urdu Mode */
+body.urdu-mode .edit-title {
+    flex-direction: row-reverse;
+}
+
+body.urdu-mode .form-group {
+    text-align: right;
+}
+
+body.urdu-mode .form-input {
+    text-align: right;
+    direction: rtl;
+}
+
+body.urdu-mode .form-actions {
+    flex-direction: row-reverse;
+}
+
+/* ============================================
+   RESPONSIVE MEDIA QUERIES
+   ============================================ */
+
+/* Tablet and below */
+@media (max-width: 768px) {
+    .edit-wrapper {
+        padding: 30px 16px;
+    }
+    .edit-card {
+        border-radius: 20px;
+    }
+    .edit-title {
+        margin-bottom: 6px;
+    }
+    .edit-subtitle {
+        font-size: 0.8rem;
+        margin-bottom: 20px;
+    }
+    .form-group {
+        margin-bottom: 16px;
+    }
+    .form-input {
+        padding: 10px 13px;
+        font-size: 0.88rem;
+    }
+    .form-label {
+        font-size: 0.78rem;
+    }
+    .help-text {
+        font-size: 0.68rem;
+    }
+}
+
+/* Mobile Landscape */
+@media (max-width: 640px) {
+    .edit-wrapper {
+        padding: 20px 12px;
+        min-height: 70vh;
+    }
+    .edit-card {
+        padding: 24px 20px;
+        border-radius: 18px;
+    }
+    .edit-title {
+        font-size: 1.4rem;
+    }
+    .edit-title i {
+        font-size: 1.2rem;
+    }
+    .edit-subtitle {
+        font-size: 0.75rem;
+        margin-bottom: 18px;
+        padding-left: 10px;
+    }
+    body.urdu-mode .edit-subtitle {
+        padding-right: 10px;
+    }
+    .form-group {
+        margin-bottom: 14px;
+    }
+    .form-label {
+        font-size: 0.75rem;
+        margin-bottom: 6px;
+    }
+    .form-input {
+        padding: 9px 12px;
+        font-size: 0.85rem;
+        border-radius: 10px;
+    }
+    .form-input::placeholder {
+        font-size: 0.8rem;
+    }
+    textarea.form-input {
+        min-height: 70px;
+    }
+    .help-text {
+        font-size: 0.65rem;
+        margin-top: 4px;
+    }
+    .form-actions {
+        margin-top: 24px;
+        gap: 10px;
+    }
+    .btn-save, .btn-cancel {
+        padding: 10px;
+        font-size: 0.85rem;
+        border-radius: 10px;
+    }
+    body.urdu-mode .form-actions {
+        flex-direction: column;
+    }
+}
+
+/* Mobile Portrait */
+@media (max-width: 480px) {
+    .edit-wrapper {
+        padding: 16px 10px;
+    }
+    .edit-card {
+        padding: 20px 16px;
+        border-radius: 16px;
+    }
+    .edit-title {
+        font-size: 1.3rem;
+        gap: 8px;
+    }
+    .edit-title i {
+        font-size: 1.1rem;
+    }
+    .edit-subtitle {
+        font-size: 0.7rem;
+        margin-bottom: 16px;
+        padding-left: 8px;
+    }
+    body.urdu-mode .edit-subtitle {
+        padding-right: 8px;
+    }
+    .form-group {
+        margin-bottom: 12px;
+    }
+    .form-label {
+        font-size: 0.7rem;
+        margin-bottom: 5px;
+    }
+    .form-label i {
+        width: 16px;
+        font-size: 0.7rem;
+    }
+    .form-input {
+        padding: 8px 11px;
+        font-size: 0.82rem;
+        border-radius: 9px;
+    }
+    .form-input::placeholder {
+        font-size: 0.75rem;
+    }
+    textarea.form-input {
+        min-height: 60px;
+    }
+    .help-text {
+        font-size: 0.6rem;
+    }
+    .form-actions {
+        margin-top: 20px;
+        gap: 8px;
+        flex-direction: column;
+    }
+    .btn-save, .btn-cancel {
+        padding: 9px;
+        font-size: 0.82rem;
+        border-radius: 9px;
+        width: 100%;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 360px) {
+    .edit-wrapper {
+        padding: 12px 8px;
+    }
+    .edit-card {
+        padding: 16px 14px;
+        border-radius: 14px;
+    }
+    .edit-title {
+        font-size: 1.2rem;
+    }
+    .edit-title i {
+        font-size: 1rem;
+    }
+    .edit-subtitle {
+        font-size: 0.65rem;
+        margin-bottom: 14px;
+    }
+    .form-group {
+        margin-bottom: 10px;
+    }
+    .form-label {
+        font-size: 0.65rem;
+    }
+    .form-input {
+        padding: 7px 10px;
+        font-size: 0.8rem;
+        border-radius: 8px;
+    }
+    .form-input::placeholder {
+        font-size: 0.7rem;
+    }
+    textarea.form-input {
+        min-height: 55px;
+    }
+    .help-text {
+        font-size: 0.55rem;
+    }
+    .form-actions {
+        margin-top: 16px;
+        gap: 6px;
+    }
+    .btn-save, .btn-cancel {
+        padding: 8px;
+        font-size: 0.78rem;
+        border-radius: 8px;
+    }
+}
+
+/* Landscape mode on mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .edit-wrapper {
+        padding: 16px 20px;
+        min-height: auto;
+    }
+    .edit-card {
+        padding: 16px 20px;
+    }
+    .edit-title {
+        font-size: 1.3rem;
+        margin-bottom: 4px;
+    }
+    .edit-subtitle {
+        margin-bottom: 12px;
+    }
+    .form-group {
+        margin-bottom: 10px;
+    }
+    .form-input {
+        padding: 7px 11px;
+    }
+    textarea.form-input {
+        min-height: 50px;
+    }
+    .form-actions {
+        margin-top: 16px;
+    }
+    .btn-save, .btn-cancel {
+        padding: 8px;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+    .btn-save, .btn-cancel, .form-input {
+        cursor: default;
+    }
+    .btn-save:active, .btn-cancel:active {
+        transform: scale(0.98);
+    }
+}
+
+/* Smooth transitions for all interactive elements */
+.btn-save, .btn-cancel, .form-input {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="edit-wrapper">
+
+    <div class="edit-card">
+
+        <div class="edit-title">
+            <i class="fas fa-user-edit"></i>
+            <span class="t" data-en="Edit Party" data-ur="پارٹی میں ترمیم کریں">Edit Party</span>
+        </div>
+        <div class="edit-subtitle">
+            <span class="t" data-en="Update party details below" data-ur="نیچے پارٹی کی تفصیلات اپ ڈیٹ کریں">Update party details below</span>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-user"></i>
+                    <span class="t" data-en="Party Name" data-ur="پارٹی کا نام">Party Name</span> *
+                </label>
+                <input type="text" name="name" value="{{ party.name }}" class="form-input" required
+                       placeholder="e.g., John Traders">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-phone"></i>
+                    <span class="t" data-en="Phone Number" data-ur="فون نمبر">Phone Number</span>
+                </label>
+                <input type="text" name="phone" value="{{ party.phone|default:'' }}" class="form-input"
+                       placeholder="e.g., 0300-1234567">
+                <span class="help-text t" data-en="Optional - For contact" data-ur="اختیاری - رابطے کے لیے">Optional - For contact</span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-id-card"></i>
+                    <span class="t" data-en="CNIC" data-ur="شناختی کارڈ">CNIC</span>
+                </label>
+                <input type="text" name="cnic" value="{{ party.cnic|default:'' }}" class="form-input"
+                       placeholder="e.g., 12345-6789012-3">
+                <span class="help-text t" data-en="Optional - National ID Card Number" data-ur="اختیاری - قومی شناختی کارڈ نمبر">Optional - National ID Card Number</span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-store"></i>
+                    <span class="t" data-en="Shop Name" data-ur="دکان کا نام">Shop Name</span>
+                </label>
+                <input type="text" name="shop_name" value="{{ party.shop_name|default:'' }}" class="form-input"
+                       placeholder="e.g., Jinnah Traders">
+                <span class="help-text t" data-en="Optional - Will appear on all PDFs" data-ur="اختیاری - تمام پی ڈی ایف پر دکھے گا">Optional - Will appear on all PDFs</span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span class="t" data-en="Address" data-ur="پتہ">Address</span>
+                </label>
+                <textarea name="address" rows="3" class="form-input"
+                          placeholder="e.g., Shop #12, Main Bazar, City">{% if party.address %}{{ party.address }}{% endif %}</textarea>
+                <span class="help-text t" data-en="Optional - Full address for delivery/communication" data-ur="اختیاری - مکمل پتہ ڈلیوری/رابطے کے لیے">Optional - Full address for delivery/communication</span>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-save"></i>
+                    <span class="t" data-en="Update Party" data-ur="پارٹی اپ ڈیٹ کریں">Update Party</span>
+                </button>
+
+                <a href="{% url 'dashboard' %}" class="btn-cancel">
+                    <i class="fas fa-times"></i>
+                    <span class="t" data-en="Cancel" data-ur="منسوخ کریں">Cancel</span>
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+    // Language sync
+    function applyEditLang(lang) {
+        document.querySelectorAll('.t[data-en][data-ur]').forEach(el => {
+            el.textContent = lang === 'ur' ? el.dataset.ur : el.dataset.en;
+        });
+    }
+
+    const savedLang = localStorage.getItem('munshi_lang') || 'en';
+    applyEditLang(savedLang);
+
+    const originalSetLang = window.setLang;
+    window.setLang = function(lang) {
+        if (originalSetLang) originalSetLang(lang);
+        applyEditLang(lang);
+    };
+</script>
+
+{% endblock %}

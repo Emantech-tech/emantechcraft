@@ -1,0 +1,407 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+.delete-wrapper {
+    max-width: 550px;
+    margin: auto;
+}
+
+.delete-card {
+    background: var(--white);
+    border: 1px solid var(--mist);
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+}
+
+.delete-header {
+    background: linear-gradient(135deg, #fff5f0, #ffffff);
+    padding: 32px 32px 24px;
+    text-align: center;
+    border-bottom: 1px solid var(--mist);
+}
+
+.delete-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(184,92,56,0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+.delete-icon i {
+    font-size: 2.5rem;
+    color: var(--rust);
+}
+
+.delete-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 8px;
+}
+
+.delete-header p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.delete-body {
+    padding: 32px;
+}
+
+.transaction-details {
+    background: var(--cream);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 28px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.detail-label i {
+    color: var(--gold);
+    width: 20px;
+}
+
+.detail-value {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--ink);
+}
+
+.detail-value.debit {
+    color: #dc3545;
+}
+
+.detail-value.credit {
+    color: #28a745;
+}
+
+.warning-box {
+    background: rgba(184,92,56,0.08);
+    border-left: 3px solid var(--rust);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 28px;
+}
+
+.warning-box p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--rust);
+}
+
+.warning-box i {
+    margin-right: 8px;
+}
+
+.warning-box ul {
+    margin-top: 8px;
+    margin-bottom: 0;
+    padding-left: 20px;
+}
+
+.button-group {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-delete {
+    flex: 1;
+    background: var(--rust);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+    text-decoration: none;
+    text-align: center;
+}
+
+.btn-delete:hover {
+    background: #9a4a2e;
+    transform: translateY(-2px);
+}
+
+.btn-cancel {
+    flex: 1;
+    background: var(--mist);
+    color: var(--ink);
+    border: none;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+    text-decoration: none;
+    text-align: center;
+}
+
+.btn-cancel:hover {
+    background: #d4d0c4;
+    transform: translateY(-2px);
+}
+
+/* Urdu mode */
+body.urdu-mode .detail-label {
+    flex-direction: row-reverse;
+}
+
+body.urdu-mode .warning-box {
+    border-left: none;
+    border-right: 3px solid var(--rust);
+    text-align: right;
+}
+
+body.urdu-mode .warning-box i {
+    margin-left: 8px;
+    margin-right: 0;
+}
+
+@media (max-width: 768px) {
+    .delete-header {
+        padding: 24px;
+    }
+
+    .delete-body {
+        padding: 20px;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="delete-wrapper">
+    <div class="delete-card">
+        <div class="delete-header">
+            <div class="delete-icon">
+                <i class="fas fa-trash-alt"></i>
+            </div>
+            <h2>Delete Transaction?</h2>
+            <p>This action cannot be undone</p>
+        </div>
+
+        <div class="delete-body">
+            <!-- Transaction Details -->
+            <div class="transaction-details">
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i class="fas fa-user"></i>
+                        Party
+                    </div>
+                    <div class="detail-value">{{ transaction.party.name }}</div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i class="fas fa-exchange-alt"></i>
+                        Type
+                    </div>
+                    <div class="detail-value {% if transaction.debit > 0 %}debit{% else %}credit{% endif %}">
+                        <i class="fas {% if transaction.debit > 0 %}fa-arrow-up{% else %}fa-arrow-down{% endif %}"></i>
+                        {% if transaction.debit > 0 %}
+                            Naam (Debit) - {{ transaction.transaction_type_ur }}
+                        {% else %}
+                            Jama (Credit) - {{ transaction.transaction_type_ur }}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i class="fas fa-rupee-sign"></i>
+                        Amount
+                    </div>
+                    <div class="detail-value {% if transaction.debit > 0 %}debit{% else %}credit{% endif %}">
+                        ₨ {% if transaction.debit > 0 %}{{ transaction.debit }}{% else %}{{ transaction.credit }}{% endif %}
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i class="fas fa-calendar"></i>
+                        Date
+                    </div>
+                    <div class="detail-value">{{ transaction.date|date:"l, d F Y" }}</div>
+                </div>
+
+                {% if transaction.voucher_no %}
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i class="fas fa-receipt"></i>
+                        Voucher No
+                    </div>
+                    <div class="detail-value">{{ transaction.voucher_no }}</div>
+                </div>
+                {% endif %}
+
+                {% if transaction.room_no %}
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i class="fas fa-door-open"></i>
+                        Room No
+                    </div>
+                    <div class="detail-value">{{ transaction.room_no }}</div>
+                </div>
+                {% endif %}
+
+                {% if transaction.product_name %}
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i class="fas fa-box"></i>
+                        Product/Description
+                    </div>
+                    <div class="detail-value">{{ transaction.product_name }}</div>
+                </div>
+                {% endif %}
+
+                {% if transaction.qty > 0 %}
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i class="fas fa-calculator"></i>
+                        Quantity
+                    </div>
+                    <div class="detail-value">{{ transaction.qty }}</div>
+                </div>
+                {% endif %}
+
+                {% if transaction.rate > 0 %}
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i class="fas fa-tag"></i>
+                        Rate
+                    </div>
+                    <div class="detail-value">₨ {{ transaction.rate }}</div>
+                </div>
+                {% endif %}
+
+                {% if transaction.rokad > 0 %}
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i class="fas fa-money-bill-wave"></i>
+                        Cash (Rokad)
+                    </div>
+                    <div class="detail-value">₨ {{ transaction.rokad }}</div>
+                </div>
+                {% endif %}
+
+                {% if transaction.note %}
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i class="fas fa-pencil-alt"></i>
+                        Note
+                    </div>
+                    <div class="detail-value">{{ transaction.note }}</div>
+                </div>
+                {% endif %}
+
+                {% if transaction.reference %}
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i class="fas fa-link"></i>
+                        Reference
+                    </div>
+                    <div class="detail-value">{{ transaction.reference }}</div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Warning Box -->
+            <div class="warning-box">
+                <p>
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Warning:</strong> Deleting this transaction will:
+                </p>
+                <ul>
+                    <li>Remove ₨ {% if transaction.debit > 0 %}{{ transaction.debit }}{% else %}{{ transaction.credit }}{% endif %} from the party's
+                        {% if transaction.debit > 0 %}Debit (Naam){% else %}Credit (Jama){% endif %} balance</li>
+                    <li>Update the party's total balances</li>
+                    <li>Permanently delete this record</li>
+                    <li>Affect all subsequent transaction balances</li>
+                </ul>
+            </div>
+
+            <!-- Current Balance Info -->
+            <div style="background: var(--cream); border-radius: 12px; padding: 12px; margin-bottom: 24px; text-align: center;">
+                <small style="color: var(--text-muted);">
+                    <i class="fas fa-chart-line"></i>
+                    Current Transaction Balance: <strong style="color: var(--gold);">₨ {{ transaction.balance }}</strong>
+                </small>
+                <br>
+                <small style="color: var(--text-muted); font-size: 0.7rem;">
+                    <i class="fas fa-info-circle"></i>
+                    Note: Deleting this transaction will recalculate all subsequent balances
+                </small>
+            </div>
+
+            <!-- Action Buttons -->
+           <!-- Action Buttons -->
+<form method="POST">
+    {% csrf_token %}
+    <div class="button-group">
+        <button type="submit" class="btn-delete">
+            <i class="fas fa-trash"></i> Yes, Delete Transaction
+        </button>
+        <a href="{% url 'party_detail' id=transaction.party.id %}" class="btn-cancel">
+            <i class="fas fa-ban"></i> No, Keep It
+        </a>
+    </div>
+</form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Language sync
+    function applyLang(lang) {
+        if (lang === 'ur') {
+            document.querySelectorAll('[data-en]').forEach(el => {
+                if (el.dataset.ur) el.textContent = el.dataset.ur;
+            });
+        } else {
+            document.querySelectorAll('[data-ur]').forEach(el => {
+                if (el.dataset.en) el.textContent = el.dataset.en;
+            });
+        }
+    }
+
+    const savedLang = localStorage.getItem('munshi_lang') || 'en';
+    applyLang(savedLang);
+</script>
+{% endblock %}

@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" dir="ltr" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>{% block title %}Munshi — CA App{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        :root {
+            --ink:        #0f0e0d;
+            --cream:      #faf7f2;
+            --gold:       #c9a84c;
+            --gold-light: #e8c96a;
+            --rust:       #b85c38;
+            --sage:       #4a7c6f;
+            --mist:       #e8e4dd;
+            --white:      #ffffff;
+            --text-muted: #7a7067;
+            --urdu-font:  'Noto Nastaliq Urdu', serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--cream);
+            color: var(--ink);
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* URDU MODE */
+        body.urdu-mode {
+            font-family: var(--urdu-font);
+            direction: rtl;
+        }
+        body.urdu-mode .navbar         { flex-direction: row-reverse; }
+        body.urdu-mode .navbar-logo    { flex-direction: row-reverse; }
+        body.urdu-mode .nav-links      { flex-direction: row-reverse; }
+        body.urdu-mode .navbar-right   { flex-direction: row-reverse; }
+        body.urdu-mode .mobile-menu a  { flex-direction: row-reverse; }
+        body.urdu-mode .breadcrumb-bar { flex-direction: row-reverse; }
+        body.urdu-mode footer          { flex-direction: row-reverse; }
+
+        body.urdu-mode h1, body.urdu-mode h2, body.urdu-mode h3,
+        body.urdu-mode h4, body.urdu-mode p, body.urdu-mode label,
+        body.urdu-mode button, body.urdu-mode a, body.urdu-mode span {
+            font-family: var(--urdu-font);
+            line-height: 2.2;
+        }
+
+        /* Icons always LTR */
+        body.urdu-mode i.fas,
+        body.urdu-mode i.far,
+        body.urdu-mode i.fab { direction: ltr; display: inline-block; }
+
+        /* NOISE BACKGROUND */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.4;
+        }
+
+        /* NAVBAR - Responsive */
+        .navbar {
+            position: sticky; top: 0; z-index: 500;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 32px; height: 68px;
+            background: rgba(250,247,242,0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(201,168,76,0.18);
+            flex-wrap: wrap;
+        }
+
+        .navbar-logo { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+        .navbar-logo-icon { width: 38px; height: 38px; border-radius: 11px; background: linear-gradient(135deg,var(--gold),var(--rust)); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; box-shadow: 0 4px 14px rgba(201,168,76,0.35); }
+        .navbar-logo-text { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; }
+        .navbar-logo-text span { color: var(--gold); }
+
+        /* Desktop Navigation Links */
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 8px 18px;
+            border-radius: 50px;
+            border: 1.5px solid transparent;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .nav-links a:hover {
+            color: var(--gold);
+            border-color: rgba(201,168,76,0.25);
+            background: rgba(201,168,76,0.07);
+        }
+
+        .nav-links a.active-link {
+            color: var(--ink);
+            border-color: var(--mist);
+            background: var(--white);
+            font-weight: 600;
+        }
+
+        .nav-links a.nav-cta {
+            background: linear-gradient(135deg,var(--gold),var(--rust));
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 14px rgba(184,92,56,0.28);
+            padding: 8px 22px;
+        }
+
+        .nav-links a.nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(184,92,56,0.35);
+        }
+
+        /* Navbar Right Section */
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Language Toggle */
+        .lang-toggle {
+            display: flex;
+            background: var(--mist);
+            padding: 4px;
+            border-radius: 50px;
+            gap: 2px;
+        }
+
+        .lang-toggle button {
+            padding: 5px 16px;
+            border-radius: 50px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.25s;
+            font-weight: 600;
+        }
+
+        #enBtn {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+        }
+
+        #urBtn {
+            font-family: 'Noto Nastaliq Urdu', serif;
+            font-size: 0.95rem;
+            padding: 3px 16px 5px;
+        }
+
+        .lang-toggle button.active {
+            background: var(--white);
+            color: var(--ink);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Hamburger Button */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 10px;
+            border: none;
+            background: var(--mist);
+            transition: all 0.3s;
+        }
+
+        .hamburger:hover {
+            background: var(--gold);
+        }
+
+        .hamburger:hover span {
+            background: white;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--ink);
+            border-radius: 3px;
+            transition: all 0.3s;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 68px;
+            left: 0;
+            right: 0;
+            background: rgba(250,247,242,0.98);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--mist);
+            padding: 20px 24px;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 499;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .mobile-menu.open {
+            display: flex;
+        }
+
+        .mobile-menu a {
+            text-decoration: none;
+            color: var(--ink);
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 12px 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.25s;
+            border: 1px solid var(--mist);
+            background: var(--white);
+        }
+
+        .mobile-menu a:hover {
+            background: rgba(201,168,76,0.1);
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .mobile-menu a.nav-cta-mobile {
+            background: linear-gradient(135deg, var(--gold), var(--rust));
+            color: white;
+            border-color: transparent;
+        }
+
+        .mobile-menu a.nav-cta-mobile:hover {
+            background: linear-gradient(135deg, var(--rust), var(--gold));
+            color: white;
+        }
+
+        .container {
+            flex: 1;
+            padding: 32px 32px 50px;
+            max-width: 1300px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 12px 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--white);
+            border: 1px solid var(--mist);
+        }
+
+        .alert-error, .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-color: #bee5eb;
+        }
+
+        /* ============================================
+           FOOTER
+        ============================================ */
+        footer {
+            background: #1a1a1a !important;
+            color: #ffffff !important;
+            padding: 40px 32px 32px !important;
+            margin-top: 60px;
+            text-align: center;
+            border-top: 3px solid var(--gold);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .footer-logo i {
+            font-size: 1.5rem;
+            color: var(--gold);
+        }
+
+        .footer-logo span {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .footer-logo span span {
+            color: var(--gold);
+        }
+
+        footer p {
+            color: #cccccc !important;
+            margin: 8px 0;
+            font-size: 0.9rem;
+        }
+
+        footer .copyright {
+            color: #888888 !important;
+            font-size: 0.8rem;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        body.urdu-mode footer {
+            direction: rtl;
+        }
+
+        body.urdu-mode .footer-logo {
+            flex-direction: row-reverse;
+        }
+
+        /* ============================================
+           RESPONSIVE MEDIA QUERIES
+        ============================================ */
+
+        @media (max-width: 1024px) {
+            .navbar {
+                padding: 0 24px;
+            }
+            .nav-links a {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+            .container {
+                padding: 28px 24px 45px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .nav-links {
+                display: none;
+            }
+            .hamburger {
+                display: flex;
+            }
+            .navbar {
+                padding: 0 20px;
+            }
+            .container {
+                padding: 24px 20px 40px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .navbar {
+                padding: 0 16px;
+                height: 60px;
+            }
+            .navbar-logo-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+            .navbar-logo-text {
+                font-size: 1.1rem;
+            }
+            .lang-toggle button {
+                padding: 4px 12px;
+                font-size: 0.7rem;
+            }
+            #urBtn {
+                font-size: 0.85rem;
+                padding: 2px 12px 4px;
+            }
+            .mobile-menu {
+                top: 60px;
+                padding: 16px;
+            }
+            .mobile-menu a {
+                padding: 10px 14px;
+                font-size: 0.9rem;
+            }
+            .container {
+                padding: 20px 16px 35px;
+            }
+            footer {
+                padding: 30px 20px 25px !important;
+            }
+            .footer-logo span {
+                font-size: 1.1rem;
+            }
+            footer p {
+                font-size: 0.75rem;
+            }
+            .footer-logo i {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar-right {
+                gap: 8px;
+            }
+            .lang-toggle button {
+                padding: 3px 10px;
+                font-size: 0.65rem;
+            }
+            #urBtn {
+                font-size: 0.8rem;
+            }
+            .hamburger span {
+                width: 20px;
+                height: 2px;
+            }
+            .container {
+                padding: 16px 14px 30px;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body id="mainBody">
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+    <a href="/" class="navbar-logo">
+        <div class="navbar-logo-icon"><i class="fas fa-book-open"></i></div>
+        <span class="navbar-logo-text">Mun<span>shi</span></span>
+    </a>
+
+    <!-- Desktop Navigation Links -->
+    <div class="nav-links">
+        <a href="/" {% if request.path == '/' %}class="active-link"{% endif %}>
+            <i class="fas fa-home"></i>
+            <span class="t" data-en="Home" data-ur="ہوم">Home</span>
+        </a>
+        {% if user.is_authenticated %}
+            <a href="/dashboard/" {% if '/dashboard' in request.path %}class="active-link"{% endif %}>
+                <i class="fas fa-chart-bar"></i>
+                <span class="t" data-en="Dashboard" data-ur="ڈیش بورڈ">Dashboard</span>
+            </a>
+            <a href="/add-party/" class="nav-cta">
+                <i class="fas fa-plus"></i>
+                <span class="t" data-en="Add Party" data-ur="پارٹی شامل کریں">Add Party</span>
+            </a>
+            <a href="{% url 'logout' %}" class="nav-cta">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="t" data-en="Logout" data-ur="لاگ آؤٹ">Logout</span>
+            </a>
+        {% else %}
+            <a href="{% url 'signup' %}" class="nav-cta">
+                <i class="fas fa-user-plus"></i>
+                <span class="t" data-en="Sign Up" data-ur="سائن اپ">Sign Up</span>
+            </a>
+            <a href="{% url 'login' %}" class="nav-cta">
+                <i class="fas fa-sign-in-alt"></i>
+                <span class="t" data-en="Login" data-ur="لاگ ان">Login</span>
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="navbar-right">
+        <!-- Language Toggle -->
+        <div class="lang-toggle">
+            <button id="enBtn" class="active" onclick="setLang('en')">EN</button>
+            <button id="urBtn" onclick="setLang('ur')">اردو</button>
+        </div>
+        <!-- Hamburger Menu Button -->
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+    <a href="/">
+        <i class="fas fa-home"></i>
+        <span class="t" data-en="Home" data-ur="ہوم">Home</span>
+    </a>
+    {% if user.is_authenticated %}
+        <a href="/dashboard/">
+            <i class="fas fa-chart-bar"></i>
+            <span class="t" data-en="Dashboard" data-ur="ڈیش بورڈ">Dashboard</span>
+        </a>
+        <a href="/add-party/" class="nav-cta-mobile">
+            <i class="fas fa-plus"></i>
+            <span class="t" data-en="Add Party" data-ur="پارٹی شامل کریں">Add Party</span>
+        </a>
+        <a href="{% url 'logout' %}">
+            <i class="fas fa-sign-out-alt"></i>
+            <span class="t" data-en="Logout" data-ur="لاگ آؤٹ">Logout</span>
+        </a>
+    {% else %}
+        <a href="{% url 'signup' %}" class="nav-cta-mobile">
+            <i class="fas fa-user-plus"></i>
+            <span class="t" data-en="Sign Up" data-ur="سائن اپ">Sign Up</span>
+        </a>
+        <a href="{% url 'login' %}" class="nav-cta-mobile">
+            <i class="fas fa-sign-in-alt"></i>
+            <span class="t" data-en="Login" data-ur="لاگ ان">Login</span>
+        </a>
+    {% endif %}
+</div>
+
+{% block breadcrumb %}{% endblock %}
+{% block page_header %}{% endblock %}
+
+<div class="container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% else %}info{% endif %}">
+                <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% block content %}{% endblock %}
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-content">
+        <div class="footer-logo">
+            <i class="fas fa-book-open"></i>
+            <span>Mun<span>shi</span></span>
+        </div>
+        <p>
+            <span class="t" data-en="Munshi Accounting System — Professional Accounting Solution for Commission Agents"
+                  data-ur="منشی اکاؤنٹنگ سسٹم — کمیشن ایجنٹس کے لیے پیشہ ورانہ اکاؤنٹنگ حل">
+                Munshi Accounting System — Professional Accounting Solution for Commission Agents
+            </span>
+        </p>
+        <div class="copyright">
+            <span class="t" data-en="© 2026 Munshi Accounting System — All Rights Reserved"
+                  data-ur="© 2026 منشی اکاؤنٹنگ سسٹم — تمام حقوق محفوظ ہیں">
+                © 2026 Munshi Accounting System — All Rights Reserved
+            </span>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // GLOBAL LANGUAGE ENGINE
+    window.setLang = function(lang) {
+        const body = document.getElementById('mainBody');
+        const html = document.getElementById('htmlRoot');
+
+        if (lang === 'ur') {
+            body.classList.add('urdu-mode');
+            html.setAttribute('dir', 'rtl');
+            html.setAttribute('lang', 'ur');
+            document.getElementById('enBtn').classList.remove('active');
+            document.getElementById('urBtn').classList.add('active');
+        } else {
+            body.classList.remove('urdu-mode');
+            html.setAttribute('dir', 'ltr');
+            html.setAttribute('lang', 'en');
+            document.getElementById('enBtn').classList.add('active');
+            document.getElementById('urBtn').classList.remove('active');
+        }
+
+        // Convert all .t class elements
+        document.querySelectorAll('.t[data-en][data-ur]').forEach(el => {
+            el.textContent = lang === 'ur' ? el.dataset.ur : el.dataset.en;
+        });
+
+        localStorage.setItem('munshi_lang', lang);
+    };
+
+    // Hamburger Menu Toggle
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    if (hamburger) {
+        hamburger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            mobileMenu.classList.toggle('open');
+
+            // Optional: Animate hamburger icon when open
+            if (mobileMenu.classList.contains('open')) {
+                hamburger.style.background = 'var(--gold)';
+            } else {
+                hamburger.style.background = 'var(--mist)';
+            }
+        });
+    }
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(event) {
+        if (mobileMenu && mobileMenu.classList.contains('open')) {
+            if (!hamburger.contains(event.target) && !mobileMenu.contains(event.target)) {
+                mobileMenu.classList.remove('open');
+                if (hamburger) hamburger.style.background = 'var(--mist)';
+            }
+        }
+    });
+
+    // Close mobile menu when a link is clicked
+    if (mobileMenu) {
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function() {
+                mobileMenu.classList.remove('open');
+                if (hamburger) hamburger.style.background = 'var(--mist)';
+            });
+        });
+    }
+
+    // Restore last language
+    document.addEventListener('DOMContentLoaded', function() {
+        const saved = localStorage.getItem('munshi_lang') || 'en';
+        window.setLang(saved);
+    });
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

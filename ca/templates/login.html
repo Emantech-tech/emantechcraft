@@ -1,0 +1,725 @@
+{% load crispy_forms_tags %}
+<!DOCTYPE html>
+<html lang="en" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Login — Munshi | منشی — لاگ ان</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        :root {
+            --ink:        #0f0e0d;
+            --cream:      #faf7f2;
+            --gold:       #c9a84c;
+            --gold-light: #e8c96a;
+            --rust:       #b85c38;
+            --sage:       #4a7c6f;
+            --mist:       #e8e4dd;
+            --white:      #ffffff;
+            --text-muted: #7a7067;
+            --error-red:  #dc3545;
+            --error-bg:   #f8d7da;
+            --urdu-font:  'Noto Nastaliq Urdu', serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--cream);
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── NOISE ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.4;
+        }
+
+        /* ── URDU MODE ── */
+        body.urdu-mode {
+            font-family: var(--urdu-font);
+            direction: rtl;
+        }
+        body.urdu-mode h1,
+        body.urdu-mode h2,
+        body.urdu-mode h3,
+        body.urdu-mode p,
+        body.urdu-mode a,
+        body.urdu-mode button,
+        body.urdu-mode label {
+            font-family: var(--urdu-font);
+            line-height: 2.2;
+        }
+        body.urdu-mode input,
+        body.urdu-mode select {
+            font-family: var(--urdu-font);
+            direction: rtl;
+            text-align: right;
+        }
+        body.urdu-mode .form-group,
+        body.urdu-mode .mb-3 { text-align: right; }
+        body.urdu-mode .lang-bar { flex-direction: row-reverse; }
+        body.urdu-mode i.fas { direction: ltr; display: inline-block; }
+        body.urdu-mode .submit-btn i { margin-left: 8px; margin-right: 0; }
+
+        /* ══ TOP BAR - RESPONSIVE ══ */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background: rgba(250,247,242,0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(201,168,76,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .logo-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 32px; height: 32px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--gold), var(--rust));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 14px;
+            box-shadow: 0 4px 12px rgba(201,168,76,0.3);
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .logo-text span { color: var(--gold); }
+
+        /* Language toggle in top bar */
+        .lang-bar {
+            display: flex;
+            background: var(--mist);
+            padding: 3px;
+            border-radius: 50px;
+            gap: 2px;
+        }
+
+        .lang-bar button {
+            padding: 4px 10px;
+            border-radius: 50px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.25s;
+            line-height: 1.4;
+        }
+
+        #enBtn { font-family: 'DM Sans', sans-serif; font-size: 0.7rem; font-weight: 600; }
+        #urBtn { font-family: 'Noto Nastaliq Urdu', serif; font-size: 0.85rem; padding: 2px 10px 4px; }
+
+        .lang-bar button.active {
+            background: var(--white);
+            color: var(--ink);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        /* ══ PAGE LAYOUT ══ */
+        .page-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px 40px;
+        }
+
+        /* ══ LOGIN CARD - RESPONSIVE ══ */
+        .login-card {
+            background: var(--white);
+            border-radius: 24px;
+            border: 1px solid var(--mist);
+            padding: clamp(28px, 6vw, 48px) clamp(20px, 5vw, 40px) clamp(28px, 6vw, 40px);
+            width: 100%;
+            max-width: 460px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.07);
+            position: relative;
+        }
+
+        /* top accent line */
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--gold), var(--rust));
+            border-radius: 24px 24px 0 0;
+        }
+
+        /* ── Card Header ── */
+        .card-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .card-icon {
+            width: 50px; height: 50px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(184,92,56,0.1));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            color: var(--gold);
+            margin: 0 auto 12px;
+            border: 1px solid rgba(201,168,76,0.2);
+        }
+
+        .card-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.4rem, 5vw, 1.9rem);
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 6px;
+            letter-spacing: -0.02em;
+        }
+
+        body.urdu-mode .card-header h2 {
+            font-family: var(--urdu-font);
+            letter-spacing: 0;
+            line-height: 2;
+        }
+
+        .card-header p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* ── Form Styles ── */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid var(--mist);
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            color: var(--ink);
+            background: var(--white);
+            transition: all 0.25s;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+        }
+
+        .form-group input::placeholder {
+            color: #bbb4a8;
+        }
+
+        /* Error messages */
+        .errorlist, .text-danger, .non-field-error {
+            color: var(--error-red);
+            font-size: 0.72rem;
+            margin-top: 6px;
+            margin-bottom: 12px;
+            list-style: none;
+            padding: 8px 10px;
+            background: var(--error-bg);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ── Submit Button ── */
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--gold), var(--rust));
+            color: white;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 12px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 6px 20px rgba(184,92,56,0.28);
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        body.urdu-mode .submit-btn {
+            font-family: var(--urdu-font);
+            font-size: 0.9rem;
+            line-height: 2;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(184,92,56,0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0) scale(0.99);
+        }
+
+        /* ── Divider ── */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 22px 0 16px;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--mist);
+        }
+
+        /* ── Footer Link ── */
+        .card-footer {
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .card-footer p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .card-footer a {
+            color: var(--gold);
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .card-footer a:hover { color: var(--rust); }
+
+        /* ── Page Footer ── */
+        .page-footer {
+            text-align: center;
+            padding: 16px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--mist);
+        }
+
+        /* ============================================
+           RESPONSIVE MEDIA QUERIES
+           ============================================ */
+
+        /* Tablet and below */
+        @media (max-width: 768px) {
+            .top-bar {
+                padding: 10px 16px;
+            }
+            .page-wrap {
+                padding: 20px 12px 32px;
+            }
+            .login-card {
+                border-radius: 20px;
+            }
+        }
+
+        /* Mobile Landscape */
+        @media (max-width: 640px) {
+            .top-bar {
+                padding: 8px 14px;
+            }
+            .logo-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+            .logo-text {
+                font-size: 1rem;
+            }
+            .lang-bar button {
+                padding: 3px 8px;
+                font-size: 0.65rem;
+            }
+            #urBtn {
+                font-size: 0.8rem;
+                padding: 1px 8px 3px;
+            }
+            .page-wrap {
+                padding: 16px 10px 24px;
+            }
+            .login-card {
+                padding: 28px 20px 24px;
+                border-radius: 18px;
+            }
+            .card-header {
+                margin-bottom: 20px;
+            }
+            .card-icon {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+                margin-bottom: 10px;
+            }
+            .card-header h2 {
+                font-size: 1.5rem;
+            }
+            .card-header p {
+                font-size: 0.75rem;
+            }
+            .form-group {
+                margin-bottom: 16px;
+            }
+            .form-group label {
+                font-size: 0.75rem;
+                margin-bottom: 5px;
+            }
+            .form-group input {
+                padding: 9px 12px;
+                font-size: 0.8rem;
+                border-radius: 10px;
+            }
+            .submit-btn {
+                padding: 10px;
+                font-size: 0.85rem;
+            }
+            .divider {
+                margin: 18px 0 14px;
+                font-size: 0.7rem;
+            }
+            .card-footer p {
+                font-size: 0.75rem;
+            }
+            .page-footer {
+                padding: 12px;
+                font-size: 0.65rem;
+            }
+        }
+
+        /* Mobile Portrait */
+        @media (max-width: 480px) {
+            .top-bar {
+                padding: 6px 12px;
+            }
+            .logo-icon {
+                width: 26px;
+                height: 26px;
+                font-size: 11px;
+            }
+            .logo-text {
+                font-size: 0.9rem;
+            }
+            .lang-bar button {
+                padding: 2px 7px;
+                font-size: 0.6rem;
+            }
+            #urBtn {
+                font-size: 0.75rem;
+            }
+            .page-wrap {
+                padding: 12px 8px 20px;
+            }
+            .login-card {
+                padding: 22px 16px 20px;
+                border-radius: 16px;
+            }
+            .card-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+                border-radius: 14px;
+            }
+            .card-header h2 {
+                font-size: 1.3rem;
+            }
+            .card-header p {
+                font-size: 0.7rem;
+            }
+            .form-group {
+                margin-bottom: 14px;
+            }
+            .form-group label {
+                font-size: 0.7rem;
+            }
+            .form-group input {
+                padding: 8px 11px;
+                font-size: 0.75rem;
+                border-radius: 9px;
+            }
+            .non-field-error {
+                font-size: 0.68rem;
+                padding: 6px 8px;
+            }
+            .submit-btn {
+                padding: 9px;
+                font-size: 0.8rem;
+            }
+            .divider {
+                margin: 16px 0 12px;
+            }
+            .card-footer p {
+                font-size: 0.7rem;
+            }
+            .page-footer {
+                padding: 10px;
+                font-size: 0.6rem;
+            }
+        }
+
+        /* Extra small devices */
+        @media (max-width: 360px) {
+            .login-card {
+                padding: 18px 14px 16px;
+            }
+            .card-header h2 {
+                font-size: 1.2rem;
+            }
+            .card-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+            .form-group input {
+                padding: 7px 10px;
+                font-size: 0.72rem;
+            }
+            .submit-btn {
+                padding: 8px;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Landscape mode on mobile */
+        @media (max-height: 550px) and (orientation: landscape) {
+            .page-wrap {
+                padding: 12px 16px;
+            }
+            .login-card {
+                padding: 16px 24px;
+            }
+            .card-header {
+                margin-bottom: 12px;
+            }
+            .card-icon {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+                margin-bottom: 6px;
+            }
+            .card-header h2 {
+                font-size: 1.2rem;
+            }
+            .form-group {
+                margin-bottom: 10px;
+            }
+            .submit-btn {
+                margin-top: 4px;
+                padding: 8px;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (hover: none) and (pointer: coarse) {
+            button, .submit-btn, .lang-bar button {
+                cursor: default;
+            }
+            .submit-btn:active {
+                transform: scale(0.98);
+            }
+            .lang-bar button:active {
+                transform: scale(0.96);
+            }
+        }
+
+        /* Smooth transitions */
+        .submit-btn, .lang-bar button, .form-group input {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body id="mainBody">
+
+<!-- ── TOP BAR ── -->
+<div class="top-bar">
+    <a href="/" class="logo-link">
+        <div class="logo-icon"><i class="fas fa-book-open"></i></div>
+        <span class="logo-text">Mun<span>shi</span></span>
+    </a>
+    <div class="lang-bar">
+        <button id="enBtn" class="active" onclick="setLang('en')">EN</button>
+        <button id="urBtn" onclick="setLang('ur')">اردو</button>
+    </div>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="page-wrap">
+    <div class="login-card">
+
+        <div class="card-header">
+            <div class="card-icon">
+                <i class="fas fa-sign-in-alt"></i>
+            </div>
+            <h2 id="cardTitle">Welcome Back</h2>
+            <p id="cardSubtitle">Login to your Munshi account</p>
+        </div>
+
+        <form method="POST" novalidate id="loginForm">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label id="usernameLabel">Username / Email</label>
+                <input type="text" name="username" id="usernameInput" placeholder="Enter your username or email" required>
+            </div>
+
+            <div class="form-group">
+                <label id="passwordLabel">Password</label>
+                <input type="password" name="password" id="passwordInput" placeholder="Enter your password" required>
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="non-field-error">
+                <i class="fas fa-exclamation-circle"></i>
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <button type="submit" class="submit-btn">
+                <i class="fas fa-arrow-right"></i>
+                <span id="submitText">Login</span>
+            </button>
+        </form>
+
+        <div class="divider">
+            <span id="dividerText">or</span>
+        </div>
+
+        <div class="card-footer">
+            <p>
+                <span id="signupText">Don't have an account?</span>
+                <a href="{% url 'signup' %}" id="signupLink">Sign Up</a>
+            </p>
+        </div>
+
+    </div>
+</div>
+
+<!-- ── PAGE FOOTER ── -->
+<div class="page-footer">
+    &copy; 2026 Munshi — Commission Agent System
+</div>
+
+<script>
+    // Language Strings (No CAPTCHA)
+    var strings = {
+        en: {
+            cardTitle:    'Welcome Back',
+            cardSubtitle: 'Login to your Munshi account',
+            usernameLabel: 'Username / Email',
+            passwordLabel: 'Password',
+            submitText:   'Login',
+            dividerText:  'or',
+            signupText:   "Don't have an account?",
+            signupLink:   'Sign Up',
+            usernamePlaceholder: 'Enter your username or email',
+            passwordPlaceholder: 'Enter your password'
+        },
+        ur: {
+            cardTitle:    'خوش آمدید',
+            cardSubtitle: 'اپنے منشی اکاؤنٹ میں لاگ ان کریں',
+            usernameLabel: 'صارف نام / ای میل',
+            passwordLabel: 'پاس ورڈ',
+            submitText:   'لاگ ان کریں',
+            dividerText:  'یا',
+            signupText:   'اکاؤنٹ نہیں ہے؟',
+            signupLink:   'سائن اپ کریں',
+            usernamePlaceholder: 'اپنا صارف نام یا ای میل درج کریں',
+            passwordPlaceholder: 'اپنا پاس ورڈ درج کریں'
+        }
+    };
+
+    function setLang(lang) {
+        var body = document.getElementById('mainBody');
+        var html = document.getElementById('htmlRoot');
+        var c = strings[lang];
+
+        if (lang === 'ur') {
+            body.classList.add('urdu-mode');
+            html.setAttribute('dir', 'rtl');
+            html.setAttribute('lang', 'ur');
+            document.getElementById('enBtn').classList.remove('active');
+            document.getElementById('urBtn').classList.add('active');
+        } else {
+            body.classList.remove('urdu-mode');
+            html.setAttribute('dir', 'ltr');
+            html.setAttribute('lang', 'en');
+            document.getElementById('enBtn').classList.add('active');
+            document.getElementById('urBtn').classList.remove('active');
+        }
+
+        document.getElementById('cardTitle').textContent = c.cardTitle;
+        document.getElementById('cardSubtitle').textContent = c.cardSubtitle;
+        document.getElementById('usernameLabel').textContent = c.usernameLabel;
+        document.getElementById('passwordLabel').textContent = c.passwordLabel;
+        document.getElementById('submitText').textContent = c.submitText;
+        document.getElementById('dividerText').textContent = c.dividerText;
+        document.getElementById('signupText').textContent = c.signupText;
+        document.getElementById('signupLink').textContent = c.signupLink;
+
+        // Update placeholders
+        document.getElementById('usernameInput').placeholder = c.usernamePlaceholder;
+        document.getElementById('passwordInput').placeholder = c.passwordPlaceholder;
+
+        localStorage.setItem('munshi_lang', lang);
+    }
+
+    // Restore saved language
+    var saved = localStorage.getItem('munshi_lang') || 'en';
+    setLang(saved === 'ur' ? 'ur' : 'en');
+</script>
+
+</body>
+</html>

@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}Add Entry — Munshi{% endblock %}
+
+{% block extra_css %}
+<style>
+
+.form-container {
+    max-width: 500px;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.form-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    font-size: 0.9rem;
+}
+
+.type-toggle {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.type-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    text-align: center;
+    font-weight: 600;
+}
+
+.type-btn.active.jama {
+    background: #e6f7ef;
+    color: green;
+    border-color: green;
+}
+
+.type-btn.active.udhaar {
+    background: #fdecec;
+    color: red;
+    border-color: red;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    background: black;
+    color: white;
+    border: none;
+    font-weight: 600;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="form-container">
+
+    <div class="form-title">
+        Add Entry — {{ party.name }}
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <!-- TYPE -->
+        <div class="type-toggle">
+            <div class="type-btn jama" id="jamaBtn">Jama</div>
+            <div class="type-btn udhaar" id="udhaarBtn">Udhaar</div>
+        </div>
+
+        <input type="hidden" name="type" id="typeInput" value="{{ entry_type }}">
+
+        <!-- AMOUNT -->
+        <div class="form-group">
+            <label>Amount</label>
+            <input type="number" name="amount" class="form-control" required>
+        </div>
+
+        <!-- NOTE -->
+        <div class="form-group">
+            <label>Note</label>
+            <input type="text" name="note" class="form-control" placeholder="Optional...">
+        </div>
+
+        <button type="submit" class="submit-btn">
+            Save Entry
+        </button>
+
+    </form>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+
+const jamaBtn = document.getElementById('jamaBtn');
+const udhaarBtn = document.getElementById('udhaarBtn');
+const typeInput = document.getElementById('typeInput');
+
+// DEFAULT SELECT
+if(typeInput.value === 'udhaar'){
+    udhaarBtn.classList.add('active','udhaar');
+}else{
+    jamaBtn.classList.add('active','jama');
+}
+
+// CLICK EVENTS
+jamaBtn.onclick = () => {
+    jamaBtn.classList.add('active','jama');
+    udhaarBtn.classList.remove('active','udhaar');
+    typeInput.value = 'jama';
+};
+
+udhaarBtn.onclick = () => {
+    udhaarBtn.classList.add('active','udhaar');
+    jamaBtn.classList.remove('active','jama');
+    typeInput.value = 'udhaar';
+};
+
+</script>
+{% endblock %}

@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" dir="ltr" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <title>Munshi — Commission Agent System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        :root {
+            --ink: #0f0e0d;
+            --cream: #faf7f2;
+            --gold: #c9a84c;
+            --gold-light: #e8c96a;
+            --rust: #b85c38;
+            --sage: #4a7c6f;
+            --mist: #e8e4dd;
+            --card-bg: #ffffff;
+            --text-muted: #7a7067;
+            --urdu-font: 'Noto Nastaliq Urdu', serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--cream);
+            color: var(--ink);
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        /* ══ URDU MODE ══ */
+        body.urdu-mode {
+            font-family: var(--urdu-font);
+            direction: rtl;
+        }
+
+        body.urdu-mode nav {
+            flex-direction: row-reverse;
+        }
+
+        body.urdu-mode .logo {
+            flex-direction: row-reverse;
+        }
+
+        body.urdu-mode h1,
+        body.urdu-mode h2,
+        body.urdu-mode h3,
+        body.urdu-mode h4,
+        body.urdu-mode p,
+        body.urdu-mode span:not(.dot-red):not(.dot-yellow):not(.dot-green),
+        body.urdu-mode a,
+        body.urdu-mode button,
+        body.urdu-mode div.eyebrow,
+        body.urdu-mode div.section-eyebrow,
+        body.urdu-mode div.mockup-title,
+        body.urdu-mode div.step-number {
+            font-family: var(--urdu-font);
+            line-height: 2.2;
+        }
+
+        body.urdu-mode .hero { flex-direction: row-reverse; }
+        body.urdu-mode .hero-left { text-align: right; }
+        body.urdu-mode .section-header { text-align: center; }
+        body.urdu-mode .roots-desc { text-align: right; }
+        body.urdu-mode .roots-inner { flex-direction: row-reverse; }
+        body.urdu-mode .roots-badge-item { flex-direction: row-reverse; text-align: right; }
+
+        body.urdu-mode .stats-row { flex-direction: row-reverse; }
+        body.urdu-mode .hero-cta { flex-direction: row-reverse; }
+        body.urdu-mode .party-row { flex-direction: row-reverse; }
+        body.urdu-mode .party-info { text-align: right; }
+
+        body.urdu-mode i.fas,
+        body.urdu-mode i.far {
+            direction: ltr;
+            display: inline-block;
+        }
+
+        body.urdu-mode footer {
+            flex-direction: row-reverse;
+        }
+
+        /* ── NOISE TEXTURE OVERLAY ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.5;
+        }
+
+        /* ── NAV (desktop unchanged, mobile adjusted) ── */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 22px 48px;
+            backdrop-filter: blur(20px);
+            background: rgba(250, 247, 242, 0.85);
+            border-bottom: 1px solid rgba(201, 168, 76, 0.2);
+            transition: all 0.4s;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 42px; height: 42px;
+            background: linear-gradient(135deg, var(--gold), var(--rust));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            box-shadow: 0 4px 16px rgba(201, 168, 76, 0.35);
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--ink);
+            letter-spacing: -0.02em;
+        }
+
+        .logo-text span { color: var(--gold); }
+
+        /* ── LANGUAGE BUTTONS ── */
+        .lang-buttons {
+            display: flex;
+            gap: 0;
+            background: var(--mist);
+            padding: 4px;
+            border-radius: 50px;
+        }
+
+        .lang-buttons button {
+            padding: 6px 16px;
+            border-radius: 50px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all 0.25s;
+            line-height: 1.4;
+        }
+
+        .lang-buttons button:first-child {
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .lang-buttons button:last-child {
+            font-family: 'Noto Nastaliq Urdu', serif;
+            font-size: 1rem;
+            padding: 4px 16px 6px;
+        }
+
+        .lang-buttons button.active {
+            background: var(--white);
+            color: var(--ink);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* ── HERO (desktop unchanged) ── */
+        .hero {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            padding: 120px 48px 80px;
+            gap: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("{% static 'images/arht.jfif' %}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            opacity: 0.07;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            right: -200px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 700px; height: 700px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(201,168,76,0.15) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .hero-left { position: relative; z-index: 2; }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(201, 168, 76, 0.12);
+            border: 1px solid rgba(201, 168, 76, 0.3);
+            color: var(--gold);
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 8px 18px;
+            border-radius: 50px;
+            margin-bottom: 28px;
+            animation: fadeUp 0.8s ease both;
+        }
+
+        body.urdu-mode .eyebrow {
+            font-size: 0.9rem;
+            letter-spacing: 0;
+            text-transform: none;
+            line-height: 2;
+        }
+
+        .eyebrow::before {
+            content: '';
+            width: 6px; height: 6px;
+            background: var(--gold);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.8rem, 5vw, 4.2rem);
+            font-weight: 900;
+            line-height: 1.08;
+            letter-spacing: -0.03em;
+            margin-bottom: 28px;
+            animation: fadeUp 0.8s 0.15s ease both;
+        }
+
+        body.urdu-mode .hero h1 {
+            font-family: var(--urdu-font);
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 2.2;
+            letter-spacing: 0;
+        }
+
+        .hero h1 em {
+            font-style: normal;
+            color: var(--gold);
+            position: relative;
+        }
+
+        .hero h1 em::after {
+            content: '';
+            position: absolute;
+            left: 0; right: 0;
+            bottom: 4px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-light));
+            border-radius: 2px;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            line-height: 1.75;
+            max-width: 460px;
+            margin-bottom: 44px;
+            animation: fadeUp 0.8s 0.3s ease both;
+        }
+
+        body.urdu-mode .hero p {
+            font-size: 1.1rem;
+            line-height: 2.4;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            animation: fadeUp 0.8s 0.45s ease both;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--gold), var(--rust));
+            color: white;
+            text-decoration: none;
+            padding: 16px 36px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            box-shadow: 0 8px 28px rgba(184, 92, 56, 0.35);
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        body.urdu-mode .btn-primary,
+        body.urdu-mode .btn-secondary {
+            font-family: var(--urdu-font);
+            font-size: 1rem;
+            padding: 14px 28px;
+            line-height: 2;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 16px 40px rgba(184, 92, 56, 0.45);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--ink);
+            text-decoration: none;
+            padding: 16px 28px;
+            border-radius: 50px;
+            font-weight: 500;
+            font-size: 1rem;
+            border: 1.5px solid var(--mist);
+            transition: all 0.3s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+        /* Stats row */
+        .stats-row {
+            display: flex;
+            gap: 36px;
+            margin-top: 56px;
+            padding-top: 40px;
+            border-top: 1px solid var(--mist);
+            animation: fadeUp 0.8s 0.6s ease both;
+        }
+
+        .stat-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .stat-value span { color: var(--gold); }
+
+        .stat-label { font-size: 0.82rem; color: var(--text-muted); margin-top: 2px; }
+
+        body.urdu-mode .stat-label {
+            font-family: var(--urdu-font);
+            font-size: 0.95rem;
+            line-height: 2;
+        }
+
+        /* Hero right */
+        .hero-right {
+            position: relative;
+            z-index: 2;
+            animation: fadeRight 1s 0.3s ease both;
+        }
+
+        .dashboard-mockup {
+            background: white;
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04), 0 12px 40px rgba(0,0,0,0.10), 0 40px 80px rgba(201,168,76,0.12);
+            border: 1px solid rgba(201,168,76,0.15);
+        }
+
+        .mockup-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .mockup-dots { display: flex; gap: 6px; }
+        .mockup-dots span { width: 10px; height: 10px; border-radius: 50%; }
+        .dot-red { background: #ff6b6b; }
+        .dot-yellow { background: #ffd93d; }
+        .dot-green { background: #6bcb77; }
+
+        .mockup-title { font-size: 0.82rem; color: var(--text-muted); font-weight: 500; font-family: 'DM Sans', sans-serif !important; }
+
+        .mockup-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+
+        .mockup-stat { background: var(--cream); border-radius: 14px; padding: 16px 18px; border: 1px solid var(--mist); }
+        .mockup-stat-label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; font-family: 'DM Sans', sans-serif !important; }
+        .mockup-stat-value { font-family: 'Playfair Display', serif !important; font-size: 1.5rem; font-weight: 700; color: var(--ink); }
+        .mockup-stat-value.green { color: var(--sage); }
+        .mockup-stat-value.rust  { color: var(--rust); }
+
+        .mini-chart { background: var(--cream); border-radius: 14px; padding: 16px 18px; border: 1px solid var(--mist); margin-bottom: 14px; }
+        .mini-chart-title { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 12px; font-family: 'DM Sans', sans-serif !important; }
+        .bars { display: flex; align-items: flex-end; gap: 6px; height: 60px; }
+        .bar { flex: 1; border-radius: 4px 4px 0 0; background: linear-gradient(180deg, var(--gold), rgba(201,168,76,0.3)); transition: height 1s ease; }
+
+        .party-list { display: flex; flex-direction: column; gap: 8px; }
+        .party-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--cream); border-radius: 10px; border: 1px solid var(--mist); }
+        .party-avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: white; margin-right: 10px; font-family: 'DM Sans', sans-serif !important; }
+        .party-info { flex: 1; }
+        .party-name { font-size: 0.82rem; font-weight: 600; color: var(--ink); font-family: 'DM Sans', sans-serif !important; }
+        .party-type { font-size: 0.7rem; color: var(--text-muted); font-family: 'DM Sans', sans-serif !important; }
+        .party-amount { font-size: 0.82rem; font-weight: 600; font-family: 'DM Sans', sans-serif !important; }
+        .party-amount.credit { color: var(--sage); }
+        .party-amount.debit  { color: var(--rust); }
+
+        /* ── ROOTS SECTION ── */
+        .roots-section { padding: 100px 48px; background: var(--cream); }
+        .roots-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; max-width: 1200px; margin: 0 auto; }
+        .roots-title { text-align: left !important; margin-bottom: 20px; }
+        .roots-desc { font-size: 1rem; color: var(--text-muted); line-height: 1.8; margin-bottom: 36px; }
+
+        body.urdu-mode .roots-desc { line-height: 2.4; font-size: 1.05rem; }
+
+        .roots-badges { display: flex; flex-direction: column; gap: 18px; }
+        .roots-badge-item { display: flex; align-items: flex-start; gap: 16px; background: white; border: 1px solid var(--mist); border-radius: 16px; padding: 18px 20px; transition: all 0.3s; }
+        .roots-badge-item:hover { border-color: var(--gold); box-shadow: 0 6px 24px rgba(201,168,76,0.12); transform: translateX(4px); }
+
+        body.urdu-mode .roots-badge-item:hover { transform: translateX(-4px); }
+
+        .roots-badge-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .roots-badge-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+
+        body.urdu-mode .roots-badge-title { font-family: var(--urdu-font); line-height: 2; }
+        body.urdu-mode .roots-badge-sub   { font-family: var(--urdu-font); line-height: 2; font-size: 0.9rem; }
+
+        .roots-badge-sub { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
+        .roots-image-wrap { position: relative; }
+        .roots-img-frame { border-radius: 28px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.08), 0 24px 60px rgba(201,168,76,0.16); }
+        .roots-img-frame img { width: 100%; height: 480px; object-fit: cover; display: block; transition: transform 0.6s ease; }
+        .roots-image-wrap:hover .roots-img-frame img { transform: scale(1.04); }
+        .roots-img-frame::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(201,168,76,0.06), rgba(0,0,0,0.22)); pointer-events: none; border-radius: 28px; }
+
+        .roots-float-badge { position: absolute; top: 24px; left: -20px; background: white; border: 1px solid rgba(201,168,76,0.3); border-radius: 50px; padding: 10px 18px; display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 600; color: var(--gold); box-shadow: 0 4px 20px rgba(0,0,0,0.1); backdrop-filter: blur(10px); }
+        .roots-float-stat { position: absolute; bottom: 24px; right: -20px; background: white; border-radius: 18px; padding: 16px 22px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); text-align: center; border: 1px solid var(--mist); }
+        .roots-float-val { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 900; color: var(--ink); line-height: 1; }
+        .roots-float-val span { color: var(--gold); }
+        .roots-float-label { font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
+
+        body.urdu-mode .roots-float-badge,
+        body.urdu-mode .roots-float-label { font-family: var(--urdu-font); line-height: 2; }
+
+        /* ── FEATURES ── */
+        .features-section { padding: 100px 48px; }
+        .features-section .feature-grid,
+        .features-section .section-header { max-width: 1200px; margin-left: auto; margin-right: auto; }
+
+        .section-header { text-align: center; margin-bottom: 64px; }
+        .section-eyebrow { display: inline-block; color: var(--gold); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 16px; }
+
+        body.urdu-mode .section-eyebrow { font-family: var(--urdu-font); letter-spacing: 0; text-transform: none; font-size: 0.95rem; line-height: 2; }
+        body.urdu-mode .section-title { font-family: var(--urdu-font); line-height: 2.2; font-size: clamp(1.8rem, 3.5vw, 2.6rem); letter-spacing: 0; }
+
+        .section-title { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; letter-spacing: -0.025em; line-height: 1.15; }
+
+        .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; max-width: 1200px; margin: 0 auto; }
+
+        .feature-card { background: white; border-radius: 24px; padding: 40px 32px; border: 1px solid var(--mist); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; overflow: hidden; opacity: 0; transform: translateY(30px); display: flex; flex-direction: column; }
+        .feature-card.visible { opacity: 1; transform: translateY(0); }
+        .feature-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--gold), var(--rust)); transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease; }
+        .feature-card:hover { transform: translateY(-8px); box-shadow: 0 20px 60px rgba(0,0,0,0.1); border-color: transparent; }
+        .feature-card:hover::before { transform: scaleX(1); }
+
+        .feature-icon { width: 60px; height: 60px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 24px; }
+        .icon-gold { background: rgba(201, 168, 76, 0.12); color: var(--gold); }
+        .icon-rust { background: rgba(184, 92, 56, 0.1);  color: var(--rust); }
+        .icon-sage { background: rgba(74, 124, 111, 0.1); color: var(--sage); }
+
+        .feature-card h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; margin-bottom: 14px; color: var(--ink); }
+        body.urdu-mode .feature-card h3 { font-family: var(--urdu-font); line-height: 2; font-size: 1.1rem; }
+        body.urdu-mode .feature-card p  { font-family: var(--urdu-font); line-height: 2.2; font-size: 0.95rem; }
+
+        .feature-card p { font-size: 0.95rem; color: var(--text-muted); line-height: 1.7; }
+
+        /* ── HOW IT WORKS ── */
+        .how-section { background: var(--ink); color: white; padding: 100px 48px; position: relative; overflow: hidden; }
+        .how-section::before { content: 'منشی'; position: absolute; font-family: 'Noto Nastaliq Urdu', serif; font-size: 18vw; font-weight: 900; color: rgba(201, 168, 76, 0.05); top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; white-space: nowrap; }
+        .how-section .section-title { color: white; }
+
+        .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 64px; position: relative; z-index: 2; }
+
+        .step-number { font-family: 'Playfair Display', serif; font-size: 4rem; font-weight: 900; color: var(--gold); opacity: 0.3; line-height: 1; margin-bottom: 16px; }
+
+        .step h4 { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; color: white; }
+        .step p  { font-size: 0.92rem; color: rgba(255,255,255,0.55); line-height: 1.7; }
+
+        body.urdu-mode .step h4 { font-family: var(--urdu-font); line-height: 2; font-size: 1.1rem; }
+        body.urdu-mode .step p  { font-family: var(--urdu-font); line-height: 2.2; font-size: 0.95rem; color: rgba(255,255,255,0.65); }
+
+        /* ── CTA SECTION ── */
+        .cta-section { padding: 100px 48px; text-align: center; position: relative; overflow: hidden; }
+        .cta-section::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(201,168,76,0.1) 0%, transparent 70%); pointer-events: none; }
+        .cta-section h2 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 900; letter-spacing: -0.02em; margin-bottom: 20px; }
+        body.urdu-mode .cta-section h2 { font-family: var(--urdu-font); line-height: 2.2; font-size: clamp(1.8rem, 3.5vw, 2.8rem); letter-spacing: 0; }
+        body.urdu-mode .cta-section p  { font-family: var(--urdu-font); line-height: 2.2; font-size: 1.1rem; }
+
+        .cta-section p { font-size: 1.05rem; color: var(--text-muted); margin-bottom: 40px; }
+
+        /* ── FOOTER ── */
+        footer { background: var(--ink); color: rgba(255,255,255,0.4); text-align: center; padding: 32px 48px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 12px; }
+        footer strong { color: var(--gold); font-family: 'Playfair Display', serif; }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+
+        /* ============================================ */
+        /* ONLY MOBILE RESPONSIVE ADDITIONS (DESKTOP UNCHANGED) */
+        /* ============================================ */
+        @media (max-width: 1000px) {
+            .hero { grid-template-columns: 1fr; padding: 100px 32px 60px; gap: 40px; }
+            .hero-right { max-width: 550px; margin: 0 auto; width: 100%; }
+            .roots-inner { grid-template-columns: 1fr; gap: 48px; }
+            .roots-img-frame img { height: auto; max-height: 400px; }
+            .feature-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+            .steps-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 32px; }
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 16px 24px; }
+            .logo-icon { width: 36px; height: 36px; font-size: 16px; }
+            .logo-text { font-size: 1.2rem; }
+            .lang-buttons button { padding: 4px 12px; font-size: 0.7rem; }
+            .lang-buttons button:last-child { font-size: 0.85rem; padding: 3px 12px 5px; }
+
+            .hero { padding: 90px 24px 50px; }
+            .hero h1 { font-size: clamp(2rem, 6vw, 3.5rem); }
+            .hero p { font-size: 0.95rem; max-width: 100%; }
+            .hero-cta { flex-direction: column; align-items: stretch; }
+            .btn-primary, .btn-secondary { justify-content: center; text-align: center; padding: 14px 24px; }
+            .stats-row { gap: 24px; justify-content: space-between; flex-wrap: wrap; }
+            .stat-value { font-size: 1.6rem; }
+            .stat-label { font-size: 0.7rem; }
+
+            .features-section, .roots-section, .how-section, .cta-section { padding: 60px 24px; }
+            .feature-card { padding: 28px 24px; }
+            .feature-icon { width: 50px; height: 50px; font-size: 20px; }
+            .feature-card h3 { font-size: 1.1rem; }
+            .section-header { margin-bottom: 40px; }
+            .section-title { font-size: clamp(1.6rem, 4vw, 2.2rem); }
+
+            .roots-float-badge { left: 12px; top: 12px; padding: 6px 14px; font-size: 0.7rem; }
+            .roots-float-stat { right: 12px; bottom: 12px; padding: 10px 16px; }
+            .roots-float-val { font-size: 1.3rem; }
+            .roots-badge-item { padding: 14px 16px; }
+
+            .step-number { font-size: 3rem; }
+            .step h4 { font-size: 1rem; }
+            .step p { font-size: 0.85rem; }
+
+            footer { padding: 24px 20px; font-size: 0.7rem; flex-wrap: wrap; }
+        }
+
+        @media (max-width: 480px) {
+            nav { padding: 12px 16px; }
+            .logo-icon { width: 32px; height: 32px; font-size: 14px; }
+            .logo-text { font-size: 1rem; }
+            .lang-buttons button { padding: 3px 10px; font-size: 0.65rem; }
+            .hero { padding: 80px 16px 40px; }
+            .eyebrow { font-size: 0.65rem; padding: 5px 12px; margin-bottom: 20px; }
+            .hero h1 { margin-bottom: 16px; }
+            .hero p { margin-bottom: 28px; font-size: 0.9rem; }
+            .stats-row { margin-top: 32px; padding-top: 24px; gap: 16px; }
+            .stat-value { font-size: 1.3rem; }
+
+            .dashboard-mockup { padding: 16px; }
+            .mockup-stats { gap: 10px; }
+            .mockup-stat { padding: 10px 12px; }
+            .mockup-stat-value { font-size: 1.2rem; }
+            .party-row { flex-wrap: wrap; gap: 8px; }
+            .party-amount { white-space: nowrap; }
+
+            .roots-float-badge { display: none; }
+            .roots-float-stat { padding: 6px 12px; }
+
+            .feature-card { padding: 20px 16px; }
+            .feature-icon { width: 44px; height: 44px; font-size: 18px; margin-bottom: 16px; }
+
+            .step-number { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body id="mainBody">
+
+<!-- ── NAV ── -->
+<nav>
+    <a href="#" class="logo">
+        <div class="logo-icon">
+            <i class="fas fa-book-open"></i>
+        </div>
+        <span class="logo-text">Mun<span>shi</span></span>
+    </a>
+    <div class="lang-buttons">
+        <button id="enBtn" class="active" onclick="setLanguage('en')">English</button>
+        <button id="urBtn" onclick="setLanguage('ur')">اردو</button>
+    </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+    <div class="hero-left">
+        <div class="eyebrow" id="eyebrow">Commission Agent System</div>
+        <h1 id="heroTitle">Your Business,<br><em>Perfectly</em> Recorded.</h1>
+        <p id="heroDesc">Digital ledger system for commission agents. Track parties, udhaar & jama, and monitor your business in real-time — from anywhere.</p>
+        <div class="hero-cta">
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}" class="btn-primary" id="ctaButton">
+                    <i class="fas fa-arrow-right"></i> Go to Dashboard
+                </a>
+            {% else %}
+                <a href="{% url 'signup' %}" class="btn-primary" id="ctaButton">
+                    <i class="fas fa-arrow-right"></i> Get Started
+                </a>
+            {% endif %}
+            <a href="#features" class="btn-secondary" id="ctaSecondary">
+                <i class="fas fa-play-circle"></i> See Features
+            </a>
+        </div>
+        <div class="stats-row">
+            <div class="stat-item">
+                <div class="stat-value">100<span>%</span></div>
+                <div class="stat-label" id="stat1">Digital & Paperless</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">24<span>/7</span></div>
+                <div class="stat-label" id="stat2">Access Anywhere</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hero-right">
+        <div class="dashboard-mockup">
+            <div class="mockup-header">
+                <div class="mockup-dots">
+                    <span class="dot-red"></span>
+                    <span class="dot-yellow"></span>
+                    <span class="dot-green"></span>
+                </div>
+                <span class="mockup-title">Munshi Dashboard</span>
+                <i class="fas fa-bell" style="color:var(--text-muted); font-size:13px;"></i>
+            </div>
+            <div class="mockup-stats">
+                <div class="mockup-stat">
+                    <div class="mockup-stat-label">Total Jama</div>
+                    <div class="mockup-stat-value green">₨ 2.4L</div>
+                </div>
+                <div class="mockup-stat">
+                    <div class="mockup-stat-label">Total Udhaar</div>
+                    <div class="mockup-stat-value rust">₨ 87K</div>
+                </div>
+                <div class="mockup-stat">
+                    <div class="mockup-stat-label">Parties</div>
+                    <div class="mockup-stat-value">48</div>
+                </div>
+                <div class="mockup-stat">
+                    <div class="mockup-stat-label">Net Balance</div>
+                    <div class="mockup-stat-value green">₨ 1.5L</div>
+                </div>
+            </div>
+            <div class="mini-chart">
+                <div class="mini-chart-title">Monthly Transactions</div>
+                <div class="bars" id="barChart"></div>
+            </div>
+            <div class="party-list">
+                <div class="party-row">
+                    <div class="party-avatar" style="background:linear-gradient(135deg,#c9a84c,#b85c38);">AK</div>
+                    <div class="party-info">
+                        <div class="party-name">Ahmed Khan</div>
+                        <div class="party-type">Wholesaler</div>
+                    </div>
+                    <div class="party-amount credit">+₨ 12,000</div>
+                </div>
+                <div class="party-row">
+                    <div class="party-avatar" style="background:linear-gradient(135deg,#4a7c6f,#2d5c52);">MR</div>
+                    <div class="party-info">
+                        <div class="party-name">Mohammad Raza</div>
+                        <div class="party-type">Retailer</div>
+                    </div>
+                    <div class="party-amount debit">-₨ 5,500</div>
+                </div>
+                <div class="party-row">
+                    <div class="party-avatar" style="background:linear-gradient(135deg,#6b7fcc,#4a5fa0);">SF</div>
+                    <div class="party-info">
+                        <div class="party-name">Salma Farooq</div>
+                        <div class="party-type">Distributor</div>
+                    </div>
+                    <div class="party-amount credit">+₨ 8,200</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── FEATURES ── -->
+<section class="features-section" id="features">
+    <div class="section-header">
+        <div class="section-eyebrow" id="featEyebrow">What We Offer</div>
+        <h2 class="section-title" id="featTitle">Everything your<br>Munshi needs</h2>
+    </div>
+    <div class="feature-grid">
+        <div class="feature-card">
+            <div class="feature-icon icon-gold"><i class="fas fa-users"></i></div>
+            <h3 id="feat1Title">Party Management</h3>
+            <p id="feat1Desc">Add, edit, and manage all your parties with a clean, organized dashboard. Find anyone in seconds.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon icon-rust"><i class="fas fa-exchange-alt"></i></div>
+            <h3 id="feat2Title">Transaction Tracking</h3>
+            <p id="feat2Desc">Record Udhaar and Jama instantly. Real-time balance calculation so you always know exactly where you stand.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon icon-sage"><i class="fas fa-chart-bar"></i></div>
+            <h3 id="feat3Title">Owner Reports</h3>
+            <p id="feat3Desc">Access complete business reports and analytics. Monitor your commission business from anywhere, anytime.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ── ROOTS SECTION ── -->
+<section class="roots-section">
+    <div class="roots-inner">
+        <div class="roots-text">
+            <div class="section-eyebrow" id="imgEyebrow">Our Roots</div>
+            <h2 class="section-title roots-title" id="imgTitle">Built for the<br>Real Market</h2>
+            <p class="roots-desc" id="rootsCard1Desc">Rooted in the traditional mandi culture — built on trust, handshake deals, and community. Now brought into the digital age.</p>
+            <div class="roots-badges">
+                <div class="roots-badge-item">
+                    <div class="roots-badge-icon icon-rust"><i class="fas fa-handshake"></i></div>
+                    <div>
+                        <div class="roots-badge-title" id="rootsCard2Title">Built on Trust</div>
+                        <div class="roots-badge-sub" id="rootsCard2Desc">Designed around how commission agents actually work.</div>
+                    </div>
+                </div>
+                <div class="roots-badge-item">
+                    <div class="roots-badge-icon icon-sage"><i class="fas fa-lock"></i></div>
+                    <div>
+                        <div class="roots-badge-title" id="rootsCard3Title">100% Secure</div>
+                        <div class="roots-badge-sub" id="rootsCard3Desc">Full control — no third-party access, ever.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="roots-image-wrap">
+            <div class="roots-img-frame">
+                <img src="{% static 'images/arht.jfif' %}" alt="Commission Agent Market" />
+            </div>
+            <div class="roots-float-badge">
+                <i class="fas fa-shield-alt"></i>
+                <span id="badgeText">Trusted System</span>
+            </div>
+            <div class="roots-float-stat">
+                <div class="roots-float-val">48<span>+</span></div>
+                <div class="roots-float-label" id="rootsCard1Title">Active Parties</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── HOW IT WORKS ── -->
+<section class="how-section">
+    <div class="section-header">
+        <div class="section-eyebrow" id="howEyebrow">Simple Process</div>
+        <h2 class="section-title" id="howTitle">Up and running<br>in minutes</h2>
+    </div>
+    <div class="steps-grid">
+        <div class="step">
+            <div class="step-number">01</div>
+            <h4 id="step1Title">Add Your Parties</h4>
+            <p id="step1Desc">Register all your customers, suppliers, and agents. One-time setup, lifelong convenience.</p>
+        </div>
+        <div class="step">
+            <div class="step-number">02</div>
+            <h4 id="step2Title">Record Transactions</h4>
+            <p id="step2Desc">Log every udhaar and jama as it happens. Balances update automatically in real-time.</p>
+        </div>
+        <div class="step">
+            <div class="step-number">03</div>
+            <h4 id="step3Title">Monitor & Grow</h4>
+            <p id="step3Desc">Use reports and insights to make smarter decisions and grow your commission business.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="cta-section">
+    <div class="section-eyebrow" id="ctaEyebrow">Ready to begin?</div>
+    <h2 id="ctaTitle">Replace your register<br>with Munshi today.</h2>
+    <p id="ctaSubtitle">No more lost entries. No more confusion. Just clarity.</p>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+    <i class="fas fa-book-open" style="color:var(--gold);"></i>
+    &copy; 2026 <strong>Munshi</strong> — Commission Agent System. All Rights Reserved.
+</footer>
+
+<script>
+    // ── BAR CHART ──
+    const heights = [35, 55, 42, 70, 48, 65, 80, 58, 72, 45, 60, 88];
+    const barChart = document.getElementById('barChart');
+    heights.forEach(h => {
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.height = '4px';
+        barChart.appendChild(bar);
+        setTimeout(() => { bar.style.height = h + '%'; }, 300);
+    });
+
+    // ── SCROLL ANIMATION ──
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                setTimeout(() => entry.target.classList.add('visible'), entry.target.dataset.delay || 0);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.feature-card').forEach((card, i) => {
+        card.dataset.delay = i * 120;
+        observer.observe(card);
+    });
+
+    // ── LANGUAGE CONTENT ──
+    const content = {
+        en: {
+            eyebrow: "Commission Agent System",
+            heroTitle: "Your Business,<br><em>Perfectly</em> Recorded.",
+            heroDesc: "Digital ledger system for commission agents. Track parties, udhaar & jama, and monitor your business in real-time — from anywhere.",
+            ctaButton: `<i class="fas fa-arrow-right"></i> Get Started`,
+            ctaSecondary: `<i class="fas fa-play-circle"></i> See Features`,
+            stat1: "Digital & Paperless",
+            stat2: "Access Anywhere",
+            featEyebrow: "What We Offer",
+            featTitle: "Everything your<br>Munshi needs",
+            feat1Title: "Party Management",
+            feat1Desc: "Add, edit, and manage all your parties with a clean, organized dashboard. Find anyone in seconds.",
+            feat2Title: "Transaction Tracking",
+            feat2Desc: "Record Udhaar and Jama instantly. Real-time balance calculation so you always know exactly where you stand.",
+            feat3Title: "Owner Reports",
+            feat3Desc: "Access complete business reports and analytics. Monitor your commission business from anywhere, anytime.",
+            howEyebrow: "Simple Process",
+            howTitle: "Up and running<br>in minutes",
+            step1Title: "Add Your Parties",
+            step1Desc: "Register all your customers, suppliers, and agents. One-time setup, lifelong convenience.",
+            step2Title: "Record Transactions",
+            step2Desc: "Log every udhaar and jama as it happens. Balances update automatically in real-time.",
+            step3Title: "Monitor & Grow",
+            step3Desc: "Use reports and insights to make smarter decisions and grow your commission business.",
+            ctaEyebrow: "Ready to begin?",
+            ctaTitle: "Replace your register<br>with Munshi today.",
+            ctaSubtitle: "No more lost entries. No more confusion. Just clarity.",
+            imgEyebrow: "Our Roots",
+            imgTitle: "Built for the<br>Real Market",
+            badgeText: "Trusted System",
+            rootsCard1Title: "Active Parties",
+            rootsCard1Desc: "Rooted in the traditional mandi culture — built on trust, handshake deals, and community. Now brought into the digital age.",
+            rootsCard2Title: "Built on Trust",
+            rootsCard2Desc: "Designed around how commission agents actually work.",
+            rootsCard3Title: "100% Secure",
+            rootsCard3Desc: "Full control — no third-party access, ever.",
+        },
+        ur: {
+            eyebrow: "کمیشن ایجنٹ سسٹم",
+            heroTitle: "آپ کا کاروبار،<br><em>مکمل</em> حفاظت میں۔",
+            heroDesc: "کمیشن ایجنٹوں کے لیے ڈیجیٹل بہی کھاتہ۔ پارٹیوں، ادھار اور جمع کا حساب رکھیں — کہیں سے بھی، کسی بھی وقت۔",
+            ctaButton: `<i class="fas fa-arrow-right"></i> ابھی شروع کریں`,
+            ctaSecondary: `<i class="fas fa-play-circle"></i> خصوصیات دیکھیں`,
+            stat1: "ڈیجیٹل اور بلا کاغذ",
+            stat2: "کہیں سے بھی رسائی",
+            featEyebrow: "ہم کیا پیش کرتے ہیں",
+            featTitle: "آپ کے منشی کی<br>ہر ضرورت",
+            feat1Title: "پارٹی مینجمنٹ",
+            feat1Desc: "تمام پارٹیوں کو آسانی سے شامل کریں، ترمیم کریں اور منظم کریں۔ کسی کو بھی لمحوں میں تلاش کریں۔",
+            feat2Title: "لین دین کا ریکارڈ",
+            feat2Desc: "ادھار اور جمع فوری درج کریں۔ بیلنس خود بخود اپڈیٹ ہوتا ہے — ہر وقت مکمل تصویر آپ کے سامنے۔",
+            feat3Title: "مالک کی رپورٹس",
+            feat3Desc: "مکمل کاروباری رپورٹس اور تجزیہ دیکھیں۔ اپنے کمیشن کاروبار پر کہیں سے بھی نظر رکھیں۔",
+            howEyebrow: "آسان طریقہ",
+            howTitle: "منٹوں میں<br>تیار ہو جائیں",
+            step1Title: "پارٹیاں شامل کریں",
+            step1Desc: "تمام گاہک، سپلائر اور ایجنٹ رجسٹر کریں۔ ایک بار سیٹ اپ، ہمیشہ کی سہولت۔",
+            step2Title: "لین دین درج کریں",
+            step2Desc: "ہر ادھار اور جمع فوری طور پر لکھیں۔ بیلنس خود بخود اور فوری اپڈیٹ ہوتا ہے۔",
+            step3Title: "نگرانی کریں، آگے بڑھیں",
+            step3Desc: "رپورٹس کی مدد سے سمجھداری سے فیصلے کریں اور اپنا کمیشن کاروبار ترقی دیں۔",
+            ctaEyebrow: "شروع کرنے کے لیے تیار؟",
+            ctaTitle: "آج ہی اپنا رجسٹر<br>منشی سے بدلیں۔",
+            ctaSubtitle: "نہ کوئی گمشدہ اندراج، نہ کوئی الجھن — بس پوری وضاحت۔",
+            imgEyebrow: "ہماری جڑیں",
+            imgTitle: "اصلی منڈی کے<br>لیے بنایا گیا",
+            badgeText: "قابلِ اعتماد سسٹم",
+            rootsCard1Title: "فعال پارٹیاں",
+            rootsCard1Desc: "روایتی منڈی کلچر کی جڑوں سے — اعتماد، ہاتھ کے سودوں اور برادری پر قائم۔ اب ڈیجیٹل دور میں۔",
+            rootsCard2Title: "اعتماد کی بنیاد پر",
+            rootsCard2Desc: "کمیشن ایجنٹ کے اصل کام کے مطابق ڈیزائن کیا گیا ہے۔",
+            rootsCard3Title: "سو فیصد محفوظ",
+            rootsCard3Desc: "پورا کنٹرول صرف آپ کا — کوئی تیسرا شخص رسائی نہیں پا سکتا۔",
+        }
+    };
+
+    function setLanguage(lang) {
+        const c = content[lang];
+        const body = document.getElementById('mainBody');
+        const html = document.getElementById('htmlRoot');
+
+        if (lang === 'ur') {
+            body.classList.add('urdu-mode');
+            html.setAttribute('dir', 'rtl');
+            html.setAttribute('lang', 'ur');
+        } else {
+            body.classList.remove('urdu-mode');
+            html.setAttribute('dir', 'ltr');
+            html.setAttribute('lang', 'en');
+        }
+
+        const ids = ['eyebrow','heroTitle','heroDesc','ctaButton','ctaSecondary',
+            'stat1','stat2','featEyebrow','featTitle',
+            'feat1Title','feat1Desc','feat2Title','feat2Desc','feat3Title','feat3Desc',
+            'howEyebrow','howTitle','step1Title','step1Desc','step2Title','step2Desc',
+            'step3Title','step3Desc','ctaEyebrow','ctaTitle','ctaSubtitle',
+            'imgEyebrow','imgTitle','badgeText','rootsCard1Title','rootsCard1Desc',
+            'rootsCard2Title','rootsCard2Desc','rootsCard3Title','rootsCard3Desc'
+        ];
+
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && c[id] !== undefined) el.innerHTML = c[id];
+        });
+
+        document.getElementById('enBtn').classList.toggle('active', lang === 'en');
+        document.getElementById('urBtn').classList.toggle('active', lang === 'ur');
+
+        localStorage.setItem('munshi_lang', lang);
+    }
+
+    const savedLang = localStorage.getItem('munshi_lang') || 'en';
+    if (savedLang === 'ur') setLanguage('ur');
+
+    window.addEventListener('scroll', () => {
+        document.querySelector('nav').style.boxShadow =
+            window.scrollY > 20 ? '0 4px 24px rgba(0,0,0,0.08)' : 'none';
+    });
+</script>
+
+</body>
+</html>

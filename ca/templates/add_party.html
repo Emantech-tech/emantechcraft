@@ -1,0 +1,405 @@
+{% extends "base.html" %}
+
+{% block title %}نیا کھاتہ دار شامل کریں — منشی{% endblock %}
+
+{% block extra_css %}
+<style>
+
+/* ══════════════════════════════
+   PAGE HEADER
+══════════════════════════════ */
+.page-header {
+    margin-bottom: 32px;
+    text-align: center;
+}
+
+.page-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+}
+
+.page-header h2 em {
+    color: var(--gold);
+    font-style: normal;
+}
+
+.page-header p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* ══════════════════════════════
+   FORM WRAPPER
+══════════════════════════════ */
+.form-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+/* ══════════════════════════════
+   FORM CARD
+══════════════════════════════ */
+.form-card {
+    width: 100%;
+    max-width: 550px;
+    background: var(--white);
+    border-radius: 24px;
+    padding: 34px 30px;
+    border: 1px solid var(--mist);
+    box-shadow:
+        0 2px 4px rgba(0,0,0,0.04),
+        0 12px 40px rgba(0,0,0,0.08);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.35s;
+}
+
+.form-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--rust));
+}
+
+.form-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+}
+
+/* ══════════════════════════════
+   INPUT GROUP
+══════════════════════════════ */
+.input-group {
+    margin-bottom: 18px;
+}
+
+.input-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    display: block;
+}
+
+.input-wrap {
+    position: relative;
+}
+
+.input-wrap i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.input-wrap input,
+.input-wrap select,
+.input-wrap textarea {
+    width: 100%;
+    padding: 12px 14px 12px 40px;
+    border-radius: 12px;
+    border: 1.5px solid var(--mist);
+    font-size: 0.9rem;
+    background: var(--cream);
+    color: var(--ink);
+    transition: all 0.25s;
+}
+
+.input-wrap input:focus,
+.input-wrap select:focus,
+.input-wrap textarea:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+    outline: none;
+}
+
+/* Help Text */
+.help-text {
+    display: block;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    margin-top: 5px;
+    margin-left: 5px;
+}
+
+/* ERROR */
+.error-box {
+    background: #ffe5e5;
+    color: #b30000;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    font-size: 0.85rem;
+}
+
+/* SUCCESS MESSAGES */
+.messages {
+    margin-bottom: 20px;
+}
+
+.message {
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+}
+
+.message.success {
+    background: #e6f4ea;
+    color: #137333;
+    border: 1px solid #b7e0c1;
+}
+
+.message.error {
+    background: #ffe5e5;
+    color: #b30000;
+    border: 1px solid #ffcccc;
+}
+
+/* BUTTONS */
+.form-actions {
+    margin-top: 24px;
+}
+
+.btn-submit {
+    width: 100%;
+    border: none;
+    border-radius: 50px;
+    padding: 14px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: white;
+    background: linear-gradient(135deg, var(--gold), var(--rust));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 8px 24px rgba(184,92,56,0.25);
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px) scale(1.02);
+}
+
+.back-link {
+    display: inline-flex;
+    justify-content: center;
+    margin-top: 14px;
+    font-size: 0.8rem;
+    text-decoration: none;
+    color: var(--text-muted);
+    width: 100%;
+}
+
+.back-link:hover {
+    color: var(--gold);
+}
+
+/* INFO NOTE */
+.info-note {
+    background: #f0f4f8;
+    border-left: 3px solid var(--gold);
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-top: 20px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.info-note i {
+    margin-right: 6px;
+    color: var(--gold);
+}
+
+/* Urdu Mode */
+body.urdu-mode .input-wrap i {
+    left: auto;
+    right: 14px;
+}
+
+body.urdu-mode .input-wrap input,
+body.urdu-mode .input-wrap select,
+body.urdu-mode .input-wrap textarea {
+    padding: 12px 40px 12px 14px;
+    text-align: right;
+}
+
+body.urdu-mode .info-note {
+    border-left: none;
+    border-right: 3px solid var(--gold);
+    text-align: right;
+}
+
+body.urdu-mode .info-note i {
+    margin-left: 6px;
+    margin-right: 0;
+}
+
+body.urdu-mode .help-text {
+    text-align: right;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h2><span class="t" data-en="Add" data-ur="نیا">Add</span> <em><span class="t" data-en="New Party" data-ur="کھاتہ دار">New Party</span></em></h2>
+    <p><span class="t" data-en="Register a new customer, supplier or agent" data-ur="نئی پارٹی، کسٹمر یا سپلائر کا کھاتہ کھولیں">Register a new customer, supplier or agent</span></p>
+</div>
+
+<div class="form-wrapper">
+    <div class="form-card">
+
+        <!-- Display Messages -->
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="message {{ message.tags }}">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}"></i>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Display Form Errors -->
+        {% if error %}
+            <div class="error-box">
+                <i class="fas fa-exclamation-triangle"></i> {{ error }}
+            </div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <!-- Name (Required) -->
+            <div class="input-group">
+                <label class="input-label t" data-en="Party Name *" data-ur="کھاتہ دار کا نام *">Party Name *</label>
+                <div class="input-wrap">
+                    <i class="fas fa-user"></i>
+                    <input type="text" name="name" required placeholder="مثلاً: علی ٹریڈرز">
+                </div>
+            </div>
+
+            <!-- Phone -->
+            <div class="input-group">
+                <label class="input-label t" data-en="Phone Number" data-ur="فون نمبر">Phone Number</label>
+                <div class="input-wrap">
+                    <i class="fas fa-phone"></i>
+                    <input type="text" name="phone" placeholder="مثلاً: 0300 1234567">
+                </div>
+            </div>
+
+            <!-- CNIC -->
+            <div class="input-group">
+                <label class="input-label t" data-en="CNIC" data-ur="شناختی کارڈ نمبر">CNIC</label>
+                <div class="input-wrap">
+                    <i class="fas fa-id-card"></i>
+                    <input type="text" name="cnic" placeholder="مثلاً: 12345-6789012-3">
+                </div>
+            </div>
+
+            <!-- Address -->
+            <div class="input-group">
+                <label class="input-label t" data-en="Address" data-ur="پتہ">Address</label>
+                <div class="input-wrap">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <textarea name="address" rows="2" placeholder="مکمل پتہ"></textarea>
+                </div>
+            </div>
+
+            <!-- ✅ Shop Name - Same style as other fields -->
+            <div class="input-group">
+                <label class="input-label t" data-en="Shop Name" data-ur="دکان کا نام">Shop Name</label>
+                <div class="input-wrap">
+                    <i class="fas fa-store"></i>
+                    <input type="text" name="shop_name" value="" placeholder="مثلاً: جناح ٹریڈرز">
+                </div>
+                <small class="help-text">
+                    <i class="fas fa-info-circle"></i>
+                    <span class="t" data-en="Optional - Will appear on all PDFs" data-ur="اختیاری - تمام پی ڈی ایف پر دکھے گا">Optional - Will appear on all PDFs</span>
+                </small>
+            </div>
+
+            <!-- Opening Balance -->
+            <div class="input-group">
+                <label class="input-label t" data-en="Opening Balance" data-ur="ابتدائی بیلنس">Opening Balance</label>
+                <div class="input-wrap">
+                    <i class="fas fa-wallet"></i>
+                    <input type="number" step="0.01" name="opening_balance" value="0" placeholder="0.00">
+                </div>
+            </div>
+
+            <!-- Balance Type (Debit/Credit) -->
+            <div class="input-group">
+                <label class="input-label t" data-en="Balance Type" data-ur="بیلنس کی قسم">Balance Type</label>
+                <div class="input-wrap">
+                    <i class="fas fa-exchange-alt"></i>
+                    <select name="balance_type">
+                        <option value="debit">
+                            🔴 <span class="t" data-en="Debit (You have to receive - Red)" data-ur="نام (لینا ہے - سرخ)">Debit (لینا ہے - سرخ)</span>
+                        </option>
+                        <option value="credit">
+                            🔵 <span class="t" data-en="Credit (You have to pay - Blue)" data-ur="جمع (دینا ہے - نیلا)">Credit (دینا ہے - نیلا)</span>
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Info Note -->
+            <div class="info-note">
+                <i class="fas fa-info-circle"></i>
+                <span class="t" data-en="Note: Debit (Red) means this party has to pay you. Credit (Blue) means you have to pay this party."
+                      data-ur="نوٹ: نام (سرخ) کا مطلب ہے یہ پارٹی آپ کو رقم دے گی۔ جمع (نیلا) کا مطلب ہے آپ کو اس پارٹی کو رقم دینی ہے۔">
+                    Note: Debit (Red) = Party will pay you | Credit (Blue) = You will pay the party
+                </span>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-save"></i>
+                    <span class="t" data-en="Save Party" data-ur="کھاتہ دار محفوظ کریں">Save Party</span>
+                </button>
+            </div>
+
+        </form>
+
+        <a href="{% url 'dashboard' %}" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            <span class="t" data-en="Back to Dashboard" data-ur="ڈیش بورڈ پر واپس جائیں">Back to Dashboard</span>
+        </a>
+
+    </div>
+</div>
+
+<script>
+    // Language sync
+    function applyLang(lang) {
+        document.querySelectorAll('.t[data-en][data-ur]').forEach(el => {
+            el.textContent = lang === 'ur' ? el.dataset.ur : el.dataset.en;
+        });
+    }
+
+    const savedLang = localStorage.getItem('munshi_lang') || 'en';
+    applyLang(savedLang);
+
+    const originalSetLang = window.setLang;
+    window.setLang = function(lang) {
+        if (originalSetLang) originalSetLang(lang);
+        applyLang(lang);
+    };
+</script>
+
+{% endblock %}
